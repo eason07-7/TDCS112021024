@@ -1,0 +1,29 @@
+# Secrets
+.env
+*.env
+!.env.example
+
+# 原始與清洗資料（大檔案、不該上 GitHub）
+step0_s3_download/raw_202603/
+step1_cleaning/cleaned_202603/
+step2_visualization/charts/
+
+# 產出 PPT 二進位
+step4_ppt/output.pptx
+step4_ppt/*.pptx
+
+# 執行 log（含路徑/憑證碎片可能）
+**/download_log.txt
+**/clean_log.txt
+**/viz_log.txt
+**/analyze_log.txt
+**/*.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
