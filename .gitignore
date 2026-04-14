@@ -11,6 +11,10 @@ step2_visualization/charts/
 # 產出 PPT 二進位
 step4_ppt/output.pptx
 step4_ppt/*.pptx
+step4_ppt/**/*.pptx
+
+# PPT 工程檔的中間資料（SVG/notes 保留，sources 清掉）
+step4_ppt/**/sources/
 
 # 執行 log（含路徑/憑證碎片可能）
 **/download_log.txt

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1280" height="70" fill="#a5743d"/>
+  <rect x="0" y="0" width="6" height="70" fill="#6b4a23"/>
+  <text x="40" y="46" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="28" font-weight="bold">07 方法改進</text>
+  <text x="1220" y="46" text-anchor="end" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">TDCS 2026/03</text>
+  <rect x="0" y="70" width="1280" height="50" fill="#f5ead8"/>
+  <rect x="0" y="70" width="6" height="50" fill="#c89558"/>
+  <text x="40" y="102" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18">左：資料下載自動化流程圖　｜　右：AI API 自動分析流程圖</text>
+  <text x="320" y="175" text-anchor="middle" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="22" font-weight="bold">資料下載自動化</text>
+  <text x="320" y="198" text-anchor="middle" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="13" font-weight="normal">兩階段 Producer-Consumer 工作流</text>
+  <rect x="50" y="215" width="540" height="62" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <rect x="50" y="215" width="6" height="62" fill="#a5743d" rx="3" opacity="1"/>
+  <text x="70" y="243" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="bold">TDCS 公開 CSV 來源</text>
+  <text x="70" y="265" text-anchor="start" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="11" font-weight="normal">高速公路局 M06A 每日壓縮檔</text>
+  <line x1="320.0" y1="277" x2="320.0" y2="283" stroke="#a5743d" stroke-width="2"/>
+  <polygon points="314.0,283 326.0,283 320.0,291" fill="#a5743d"/>
+  <rect x="50" y="291" width="540" height="62" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <rect x="50" y="291" width="6" height="62" fill="#a5743d" rx="3" opacity="1"/>
+  <text x="70" y="319" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="bold">download_only_2025.py</text>
+  <text x="70" y="341" text-anchor="start" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="11" font-weight="normal">逐月下載 → 完整度達標寫 _READY</text>
+  <line x1="320.0" y1="353" x2="320.0" y2="359" stroke="#a5743d" stroke-width="2"/>
+  <polygon points="314.0,359 326.0,359 320.0,367" fill="#a5743d"/>
+  <rect x="50" y="367" width="540" height="62" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <rect x="50" y="367" width="6" height="62" fill="#a5743d" rx="3" opacity="1"/>
+  <text x="70" y="395" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="bold">本地暫存資料夾</text>
+  <text x="70" y="417" text-anchor="start" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="11" font-weight="normal">202603/ 按日期分目錄</text>
+  <line x1="320.0" y1="429" x2="320.0" y2="435" stroke="#a5743d" stroke-width="2"/>
+  <polygon points="314.0,435 326.0,435 320.0,443" fill="#a5743d"/>
+  <rect x="50" y="443" width="540" height="62" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <rect x="50" y="443" width="6" height="62" fill="#a5743d" rx="3" opacity="1"/>
+  <text x="70" y="471" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="bold">upload_only_2025.py</text>
+  <text x="70" y="493" text-anchor="start" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="11" font-weight="normal">輪詢 _READY → 逐檔上傳 S3</text>
+  <line x1="320.0" y1="505" x2="320.0" y2="511" stroke="#a5743d" stroke-width="2"/>
+  <polygon points="314.0,511 326.0,511 320.0,519" fill="#a5743d"/>
+  <rect x="50" y="519" width="540" height="62" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <rect x="50" y="519" width="6" height="62" fill="#a5743d" rx="3" opacity="1"/>
+  <text x="70" y="547" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="bold">AWS S3 Bucket</text>
+  <text x="70" y="569" text-anchor="start" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="11" font-weight="normal">s3://…trafficdatacollectionsyste/</text>
+  <text x="950" y="175" text-anchor="middle" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="22" font-weight="bold">AI API 分析端</text>
+  <text x="950" y="198" text-anchor="middle" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="13" font-weight="normal">Gemini 2.5 Flash 跨檔跑稽核</text>
+  <rect x="680" y="215" width="540" height="62" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <rect x="680" y="215" width="6" height="62" fill="#c89558" rx="3" opacity="1"/>
+  <text x="700" y="243" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="bold">① 輸入資料</text>
+  <text x="700" y="265" text-anchor="start" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="11" font-weight="normal">cleaned 月彙總 CSV：14,058 列 × 31 天 × 4 匝道</text>
+  <line x1="950.0" y1="277" x2="950.0" y2="283" stroke="#a5743d" stroke-width="2"/>
+  <polygon points="944.0,283 956.0,283 950.0,291" fill="#a5743d"/>
+  <rect x="680" y="291" width="540" height="62" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <rect x="680" y="291" width="6" height="62" fill="#c89558" rx="3" opacity="1"/>
+  <text x="700" y="319" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="bold">② compute_stats 前處理</text>
+  <text x="700" y="341" text-anchor="start" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="11" font-weight="normal">日均/std、尖峰/離峰、VT 占比、|z|≥2 異常日</text>
+  <line x1="950.0" y1="353" x2="950.0" y2="359" stroke="#a5743d" stroke-width="2"/>
+  <polygon points="944.0,359 956.0,359 950.0,367" fill="#a5743d"/>
+  <rect x="680" y="367" width="540" height="62" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <rect x="680" y="367" width="6" height="62" fill="#c89558" rx="3" opacity="1"/>
+  <text x="700" y="395" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="bold">③ Prompt 組裝</text>
+  <text x="700" y="417" text-anchor="start" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="11" font-weight="normal">system（任務+格式約束）+ RAG 路段知識 5 chunks + stats JSON + 圖表清單 9 張</text>
+  <line x1="950.0" y1="429" x2="950.0" y2="435" stroke="#a5743d" stroke-width="2"/>
+  <polygon points="944.0,435 956.0,435 950.0,443" fill="#a5743d"/>
+  <rect x="680" y="443" width="540" height="62" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <rect x="680" y="443" width="6" height="62" fill="#c89558" rx="3" opacity="1"/>
+  <text x="700" y="471" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="bold">④ Gemini 2.5 Flash</text>
+  <text x="700" y="493" text-anchor="start" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="11" font-weight="normal">temp=0.2 · top_p=0.8 · max_tokens=16384 · thinking_budget=2048</text>
+  <line x1="950.0" y1="505" x2="950.0" y2="511" stroke="#a5743d" stroke-width="2"/>
+  <polygon points="944.0,511 956.0,511 950.0,519" fill="#a5743d"/>
+  <rect x="680" y="519" width="540" height="62" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <rect x="680" y="519" width="6" height="62" fill="#c89558" rx="3" opacity="1"/>
+  <text x="700" y="547" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="bold">⑤ analysis_report.md</text>
+  <text x="700" y="569" text-anchor="start" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="11" font-weight="normal">4 項發現（南科雙峰/週末/麻豆重貨/3-26 異常）+ 稽核段落</text>
+  <line x1="40" y1="665" x2="1240" y2="665" stroke="#f5ead8" stroke-width="1"/>
+  <text x="40" y="695" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">資料來源：高速公路局 TDCS M06A</text>
+  <text x="640" y="695" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">方法改進</text>
+  <text x="1220" y="695" text-anchor="end" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14">9/16</text>
+</svg>

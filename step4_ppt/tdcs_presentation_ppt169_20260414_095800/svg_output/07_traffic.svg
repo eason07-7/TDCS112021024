@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1280" height="70" fill="#a5743d"/>
+  <rect x="0" y="0" width="6" height="70" fill="#6b4a23"/>
+  <text x="40" y="46" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="28" font-weight="bold">05 觀察 4 匝道總車流</text>
+  <text x="1220" y="46" text-anchor="end" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">TDCS 2026/03</text>
+  <rect x="0" y="70" width="1280" height="50" fill="#f5ead8"/>
+  <rect x="0" y="70" width="6" height="50" fill="#c89558"/>
+  <text x="40" y="102" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18">南科通勤造就顯著雙峰；週末 &gt; 平日；3/26 全路段異常偏低</text>
+  <image href="../images/_overview_daily_total.png" x="40" y="140" width="720" height="480" preserveAspectRatio="xMidYMid meet"/>
+  <rect x="780" y="150" width="460" height="140" fill="#f5ead8" rx="8" opacity="1"/>
+  <rect x="780" y="150" width="6" height="140" fill="#c89558" rx="3" opacity="1"/>
+  <text x="800" y="185" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">● 南科通勤雙峰</text>
+  <text x="800" y="222" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">新營→下營系統 上午 7 點尖峰 ~1,148 輛；下營→麻豆 </text>
+  <text x="800" y="248" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">下午 4 點尖峰 ~843 輛</text>
+  <rect x="780" y="305" width="460" height="140" fill="#f5ead8" rx="8" opacity="1"/>
+  <rect x="780" y="305" width="6" height="140" fill="#c89558" rx="3" opacity="1"/>
+  <text x="800" y="340" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">● 週末休閒車流</text>
+  <text x="800" y="377" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">下營→新營 週六日均 13,618 輛，高於平日 11,138~</text>
+  <text x="800" y="403" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">11,922 輛</text>
+  <rect x="780" y="460" width="460" height="140" fill="#f5ead8" rx="8" opacity="1"/>
+  <rect x="780" y="460" width="6" height="140" fill="#c89558" rx="3" opacity="1"/>
+  <text x="800" y="495" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">● 3/26 全路段異常</text>
+  <text x="800" y="532" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">四匝道 z 值 -2.71 ~ -3.57；建議人工複核當日事件</text>
+  <line x1="40" y1="665" x2="1240" y2="665" stroke="#f5ead8" stroke-width="1"/>
+  <text x="40" y="695" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">資料來源：高速公路局 TDCS M06A</text>
+  <text x="640" y="695" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">4 匝道總車流</text>
+  <text x="1220" y="695" text-anchor="end" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14">7/16</text>
+</svg>

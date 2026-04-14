@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1280" height="70" fill="#a5743d"/>
+  <rect x="0" y="0" width="6" height="70" fill="#6b4a23"/>
+  <text x="40" y="46" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="28" font-weight="bold">01 交流道資訊</text>
+  <text x="1220" y="46" text-anchor="end" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">TDCS 2026/03</text>
+  <rect x="0" y="70" width="1280" height="50" fill="#f5ead8"/>
+  <rect x="0" y="70" width="6" height="50" fill="#c89558"/>
+  <text x="40" y="102" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18">國道1號 下營系統（K289） ~ 麻豆（K303），長約 14 km</text>
+  <rect x="60" y="150" width="1160" height="60" fill="#a5743d" rx="6" opacity="1"/>
+  <text x="110" y="188" text-anchor="start" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="bold">GantryID</text>
+  <text x="340" y="188" text-anchor="start" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="bold">方向</text>
+  <text x="560" y="188" text-anchor="start" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="bold">區段</text>
+  <text x="900" y="188" text-anchor="start" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="bold">位置特性</text>
+  <rect x="60" y="220" width="1160" height="60" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" opacity="1"/>
+  <text x="110" y="258" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">01F2930N</text>
+  <text x="340" y="258" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">北上</text>
+  <text x="560" y="258" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">下營系統 → 新營</text>
+  <text x="900" y="258" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">銜接國道8號，南科通勤要道</text>
+  <rect x="60" y="280" width="1160" height="60" fill="#FFFFFF" stroke="#D0D7E0" stroke-width="1" opacity="1"/>
+  <text x="110" y="318" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">01F2930S</text>
+  <text x="340" y="318" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">南下</text>
+  <text x="560" y="318" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">新營 → 下營系統</text>
+  <text x="900" y="318" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">嘉南平原返鄉車流</text>
+  <rect x="60" y="340" width="1160" height="60" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" opacity="1"/>
+  <text x="110" y="378" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">01F3019N</text>
+  <text x="340" y="378" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">北上</text>
+  <text x="560" y="378" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">麻豆 → 下營系統</text>
+  <text x="900" y="378" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">工業帶、港區物流</text>
+  <rect x="60" y="400" width="1160" height="60" fill="#FFFFFF" stroke="#D0D7E0" stroke-width="1" opacity="1"/>
+  <text x="110" y="438" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">01F3019S</text>
+  <text x="340" y="438" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">南下</text>
+  <text x="560" y="438" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">下營系統 → 麻豆</text>
+  <text x="900" y="438" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">觀光與物流混合</text>
+  <rect x="60" y="480" width="1160" height="140" fill="#F5F7FA" rx="6" opacity="1"/>
+  <text x="80" y="515" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="bold">路段特性</text>
+  <text x="80" y="550" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="normal">• 下營系統為 國道1 × 國道8 交會節點，銜接台南市區與南科方向</text>
+  <text x="80" y="580" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="normal">• 麻豆一帶為工業帶與港區物流要道，重型貨運占比明顯偏高</text>
+  <text x="80" y="608" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="normal">• 本段 3 月資料量：14,058 筆小時彙總，約 152 萬筆原始車流紀錄</text>
+  <line x1="40" y1="665" x2="1240" y2="665" stroke="#f5ead8" stroke-width="1"/>
+  <text x="40" y="695" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">資料來源：高速公路局 TDCS M06A</text>
+  <text x="640" y="695" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">交流道資訊</text>
+  <text x="1220" y="695" text-anchor="end" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14">3/16</text>
+</svg>

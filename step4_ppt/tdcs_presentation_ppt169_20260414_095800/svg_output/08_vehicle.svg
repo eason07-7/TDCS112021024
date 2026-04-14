@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1280" height="70" fill="#a5743d"/>
+  <rect x="0" y="0" width="6" height="70" fill="#6b4a23"/>
+  <text x="40" y="46" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="28" font-weight="bold">06 不同車種 VS. 不同星期</text>
+  <text x="1220" y="46" text-anchor="end" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">TDCS 2026/03</text>
+  <rect x="0" y="70" width="1280" height="50" fill="#f5ead8"/>
+  <rect x="0" y="70" width="6" height="50" fill="#c89558"/>
+  <text x="40" y="102" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18">小客車為主力 60-68%；麻豆段重型貨運占比 ~17%，顯著高於新營段 ~10%</text>
+  <image href="../images/chart2_VT_vs_weekday_01F2930N.png" x="50" y="140" width="570" height="220" preserveAspectRatio="xMidYMid meet"/>
+  <text x="335" y="380" text-anchor="middle" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="bold">01F2930N 下營→新營</text>
+  <image href="../images/chart2_VT_vs_weekday_01F2930S.png" x="660" y="140" width="570" height="220" preserveAspectRatio="xMidYMid meet"/>
+  <text x="945" y="380" text-anchor="middle" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="bold">01F2930S 新營→下營</text>
+  <image href="../images/chart2_VT_vs_weekday_01F3019N.png" x="50" y="395" width="570" height="220" preserveAspectRatio="xMidYMid meet"/>
+  <text x="335" y="635" text-anchor="middle" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="bold">01F3019N 麻豆→下營</text>
+  <image href="../images/chart2_VT_vs_weekday_01F3019S.png" x="660" y="395" width="570" height="220" preserveAspectRatio="xMidYMid meet"/>
+  <text x="945" y="635" text-anchor="middle" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="bold">01F3019S 下營→麻豆</text>
+  <rect x="60" y="640" width="1160" height="20" fill="#F5F7FA" rx="3" opacity="1"/>
+  <text x="640" y="656" text-anchor="middle" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="13" font-weight="normal">VT 代碼：31=小客車 Sedan  32=小貨車 Pickup  41=大客車 Bus  42=大貨車 Truck  5=聯結車 Trailer</text>
+  <line x1="40" y1="665" x2="1240" y2="665" stroke="#f5ead8" stroke-width="1"/>
+  <text x="40" y="695" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">資料來源：高速公路局 TDCS M06A</text>
+  <text x="640" y="695" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">車種 vs 星期</text>
+  <text x="1220" y="695" text-anchor="end" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14">8/16</text>
+</svg>

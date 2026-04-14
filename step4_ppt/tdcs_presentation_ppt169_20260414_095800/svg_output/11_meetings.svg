@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1280" height="70" fill="#a5743d"/>
+  <rect x="0" y="0" width="6" height="70" fill="#6b4a23"/>
+  <text x="40" y="46" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="28" font-weight="bold">09 會議記錄</text>
+  <text x="1220" y="46" text-anchor="end" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">TDCS 2026/03</text>
+  <rect x="0" y="70" width="1280" height="50" fill="#f5ead8"/>
+  <rect x="0" y="70" width="6" height="50" fill="#c89558"/>
+  <text x="40" y="102" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18">至少 2 次會議紀錄，請自行填寫</text>
+  <rect x="60" y="150" width="560" height="470" fill="#FFFFFF" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <rect x="60" y="150" width="560" height="50" fill="#a5743d" rx="8" opacity="1"/>
+  <text x="340" y="183" text-anchor="middle" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="bold">會議 1</text>
+  <text x="90" y="220" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">時間：</text>
+  <text x="180" y="220" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">____________</text>
+  <text x="90" y="265" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">地點：</text>
+  <text x="180" y="265" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">____________</text>
+  <text x="90" y="310" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">討論事項：</text>
+  <text x="180" y="310" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">________________________________</text>
+  <text x="90" y="355" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">檢討：</text>
+  <text x="180" y="355" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">________________________________</text>
+  <rect x="90" y="415" width="500" height="180" fill="#FAFAFA" stroke="#D9D9D9" stroke-width="1" rx="6" opacity="1"/>
+  <text x="340" y="505" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="normal">[ 照片位置 ]</text>
+  <text x="340" y="535" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">請自行放入會議照片</text>
+  <rect x="660" y="150" width="560" height="470" fill="#FFFFFF" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <rect x="660" y="150" width="560" height="50" fill="#a5743d" rx="8" opacity="1"/>
+  <text x="940" y="183" text-anchor="middle" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="bold">會議 2</text>
+  <text x="690" y="220" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">時間：</text>
+  <text x="780" y="220" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">____________</text>
+  <text x="690" y="265" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">地點：</text>
+  <text x="780" y="265" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">____________</text>
+  <text x="690" y="310" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">討論事項：</text>
+  <text x="780" y="310" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">________________________________</text>
+  <text x="690" y="355" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">檢討：</text>
+  <text x="780" y="355" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">________________________________</text>
+  <rect x="690" y="415" width="500" height="180" fill="#FAFAFA" stroke="#D9D9D9" stroke-width="1" rx="6" opacity="1"/>
+  <text x="940" y="505" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="normal">[ 照片位置 ]</text>
+  <text x="940" y="535" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">請自行放入會議照片</text>
+  <line x1="40" y1="665" x2="1240" y2="665" stroke="#f5ead8" stroke-width="1"/>
+  <text x="40" y="695" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">資料來源：高速公路局 TDCS M06A</text>
+  <text x="640" y="695" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">會議記錄</text>
+  <text x="1220" y="695" text-anchor="end" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14">11/16</text>
+</svg>

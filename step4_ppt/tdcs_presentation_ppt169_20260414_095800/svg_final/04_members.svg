@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1280" height="70" fill="#a5743d"/>
+  <rect x="0" y="0" width="6" height="70" fill="#6b4a23"/>
+  <text x="40" y="46" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="28" font-weight="bold">02 組員分工</text>
+  <text x="1220" y="46" text-anchor="end" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">TDCS 2026/03</text>
+  <rect x="0" y="70" width="1280" height="50" fill="#f5ead8"/>
+  <rect x="0" y="70" width="6" height="50" fill="#c89558"/>
+  <text x="40" y="102" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18">第 17 組 ‧ 關於我在無意間被隔壁車道的卡車學長撞成廢人這件事</text>
+  <rect x="60" y="150" width="1160" height="50" fill="#a5743d" rx="6" opacity="1"/>
+  <text x="110" y="183" text-anchor="start" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">學號</text>
+  <text x="260" y="183" text-anchor="start" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">姓名</text>
+  <text x="410" y="183" text-anchor="start" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">貢獻度</text>
+  <text x="570" y="183" text-anchor="start" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">負責內容</text>
+  <text x="900" y="183" text-anchor="start" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">YouTube URL</text>
+  <rect x="60" y="210" width="1160" height="70" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" opacity="1"/>
+  <text x="110" y="255" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">112021004</text>
+  <text x="260" y="255" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">辛弈序</text>
+  <text x="410" y="255" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="normal">____%</text>
+  <text x="570" y="255" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">__________________</text>
+  <text x="900" y="255" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">____________</text>
+  <rect x="60" y="280" width="1160" height="70" fill="#FFFFFF" stroke="#D0D7E0" stroke-width="1" opacity="1"/>
+  <text x="110" y="325" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">113021091</text>
+  <text x="260" y="325" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">陳睿綸</text>
+  <text x="410" y="325" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="normal">____%</text>
+  <text x="570" y="325" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">__________________</text>
+  <text x="900" y="325" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">____________</text>
+  <rect x="60" y="350" width="1160" height="70" fill="#f5ead8" stroke="#D0D7E0" stroke-width="1" opacity="1"/>
+  <text x="110" y="395" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">114021168</text>
+  <text x="260" y="395" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">謝晴如</text>
+  <text x="410" y="395" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="normal">____%</text>
+  <text x="570" y="395" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">__________________</text>
+  <text x="900" y="395" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">____________</text>
+  <rect x="60" y="420" width="1160" height="70" fill="#FFFFFF" stroke="#D0D7E0" stroke-width="1" opacity="1"/>
+  <text x="110" y="465" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">112021024</text>
+  <text x="260" y="465" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="bold">謝秉宏</text>
+  <text x="410" y="465" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="normal">____%</text>
+  <text x="570" y="465" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">__________________</text>
+  <text x="900" y="465" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">____________</text>
+  <rect x="60" y="510" width="1160" height="110" fill="#FFF7E6" stroke="#FFD591" stroke-width="1" rx="6" opacity="1"/>
+  <text x="80" y="545" text-anchor="start" fill="#D46B08" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">填寫說明</text>
+  <text x="80" y="578" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">• 貢獻度總和依課程規範填寫；YouTube URL 為個人影音分享連結</text>
+  <text x="80" y="605" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="15" font-weight="normal">• 負責內容簡述：下載 / 清洗 / 視覺化 / AI 分析 / PPT / 心得 等</text>
+  <line x1="40" y1="665" x2="1240" y2="665" stroke="#f5ead8" stroke-width="1"/>
+  <text x="40" y="695" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">資料來源：高速公路局 TDCS M06A</text>
+  <text x="640" y="695" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">組員分工</text>
+  <text x="1220" y="695" text-anchor="end" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14">4/16</text>
+</svg>

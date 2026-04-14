@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1280" height="720" fill="#a5743d"/>
+  <rect x="0" y="0" width="1280" height="8" fill="#6b4a23"/>
+  <text x="640" y="310" text-anchor="middle" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="100" font-weight="bold">Thank You</text>
+  <text x="640" y="390" text-anchor="middle" fill="#e8d3b0" font-family="Microsoft YaHei, Arial, sans-serif" font-size="32" font-weight="normal">感謝聆聽　歡迎提問</text>
+  <line x1="500" y1="440" x2="780" y2="440" stroke="#FFFFFF" stroke-width="2"/>
+  <circle cx="640" cy="440" r="5" fill="#FFFFFF"/>
+  <text x="640" y="510" text-anchor="middle" fill="#e8d3b0" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="normal">麻豆交流道 ‧ TDCS M06A 2026/03 流量分析</text>
+  <text x="640" y="555" text-anchor="middle" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="28" font-weight="bold">Q &amp; A</text>
+</svg>

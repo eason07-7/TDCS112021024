@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1280" height="110" fill="#a5743d"/>
+  <rect x="0" y="0" width="8" height="110" fill="#6b4a23"/>
+  <text x="640" y="68" text-anchor="middle" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="30" font-weight="bold">TDCS M06A 期末報告 ‧ 2026/03</text>
+  <text x="640" y="215" text-anchor="middle" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="78" font-weight="bold">麻豆交流道</text>
+  <text x="640" y="280" text-anchor="middle" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="26" font-weight="normal">下營系統-麻豆段 2026 年 3 月車流分析</text>
+  <line x1="400" y1="320" x2="880" y2="320" stroke="#c89558" stroke-width="2"/>
+  <circle cx="640" cy="320" r="6" fill="#c89558"/>
+  <text x="640" y="370" text-anchor="middle" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="bold">第 17 組 ‧ 關於我在無意間被隔壁車道的卡車學長撞成廢人這件事</text>
+  <rect x="340" y="420" width="300" height="54" fill="#f5ead8" rx="8" opacity="1"/>
+  <rect x="340" y="420" width="6" height="54" fill="#a5743d" rx="3" opacity="1"/>
+  <text x="365" y="455" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="bold">112021004</text>
+  <text x="485" y="455" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="22" font-weight="bold">辛弈序</text>
+  <rect x="660" y="420" width="300" height="54" fill="#f5ead8" rx="8" opacity="1"/>
+  <rect x="660" y="420" width="6" height="54" fill="#a5743d" rx="3" opacity="1"/>
+  <text x="685" y="455" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="bold">113021091</text>
+  <text x="805" y="455" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="22" font-weight="bold">陳睿綸</text>
+  <rect x="340" y="490" width="300" height="54" fill="#f5ead8" rx="8" opacity="1"/>
+  <rect x="340" y="490" width="6" height="54" fill="#a5743d" rx="3" opacity="1"/>
+  <text x="365" y="525" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="bold">114021168</text>
+  <text x="485" y="525" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="22" font-weight="bold">謝晴如</text>
+  <rect x="660" y="490" width="300" height="54" fill="#f5ead8" rx="8" opacity="1"/>
+  <rect x="660" y="490" width="6" height="54" fill="#a5743d" rx="3" opacity="1"/>
+  <text x="685" y="525" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="bold">112021024</text>
+  <text x="805" y="525" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="22" font-weight="bold">謝秉宏</text>
+  <rect x="0" y="665" width="1280" height="55" fill="#F5F7FA"/>
+  <text x="640" y="698" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">2026 春季 期末報告 ‧ 資料期間 2026/03/01 ~ 2026/03/31</text>
+</svg>

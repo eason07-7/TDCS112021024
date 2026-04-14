@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1280" height="70" fill="#a5743d"/>
+  <rect x="0" y="0" width="6" height="70" fill="#6b4a23"/>
+  <text x="40" y="46" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="28" font-weight="bold">08 資料正確性稽核</text>
+  <text x="1220" y="46" text-anchor="end" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">TDCS 2026/03</text>
+  <rect x="0" y="70" width="1280" height="50" fill="#f5ead8"/>
+  <rect x="0" y="70" width="6" height="50" fill="#c89558"/>
+  <text x="40" y="102" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18">Gemini 2.5 Flash + z-score 跨檔稽核：3/7 偏高、3/26 偏低</text>
+  <rect x="60" y="150" width="440" height="470" fill="#f5ead8" rx="8" opacity="1"/>
+  <rect x="60" y="150" width="6" height="470" fill="#a5743d" rx="3" opacity="1"/>
+  <text x="90" y="195" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="22" font-weight="bold">稽核方法</text>
+  <text x="90" y="240" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="normal">① 統計摘要</text>
+  <text x="90" y="285" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="normal">   日均/尖峰/車種占比/異常</text>
+  <text x="90" y="330" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="normal">② AI 跨檔分析</text>
+  <text x="90" y="375" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="normal">   Gemini 2.5 Flash</text>
+  <text x="90" y="420" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="normal">③ z-score ≥ 2 標記異常日</text>
+  <text x="90" y="465" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="16" font-weight="normal">④ 自動輸出 analysis_report.md</text>
+  <rect x="530" y="150" width="700" height="470" fill="#FFFFFF" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <text x="550" y="195" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="22" font-weight="bold">關鍵發現</text>
+  <rect x="550" y="215" width="660" height="95" fill="#FFF1F0" stroke="#FFA39E" stroke-width="1" rx="6" opacity="1"/>
+  <text x="570" y="245" text-anchor="start" fill="#CF1322" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">▲ 3/7 偏高</text>
+  <text x="570" y="272" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">下營→新營 15,280 輛 (z=+3.10)</text>
+  <text x="570" y="295" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">新營→下營 16,674 輛 (z=+2.63)</text>
+  <rect x="550" y="325" width="660" height="145" fill="#FFF7E6" stroke="#FFD591" stroke-width="1" rx="6" opacity="1"/>
+  <text x="570" y="355" text-anchor="start" fill="#D46B08" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">▼ 3/26 全路段偏低</text>
+  <text x="570" y="382" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">下營→新營 z=-3.28；新營→下營 z=-3.57</text>
+  <text x="570" y="405" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">麻豆→下營 z=-3.08；下營→麻豆 z=-2.71</text>
+  <text x="570" y="432" text-anchor="start" fill="#D46B08" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">原因：S3 源頭缺 15、16、17 時 3 筆</text>
+  <text x="570" y="455" text-anchor="start" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="13" font-weight="normal">（非本專題清洗瑕疵，已記錄事件 F）</text>
+  <rect x="550" y="485" width="660" height="120" fill="#F6FFED" stroke="#B7EB8F" stroke-width="1" rx="6" opacity="1"/>
+  <text x="570" y="515" text-anchor="start" fill="#389E0D" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">✓ 車種比例符合路段特性</text>
+  <text x="570" y="542" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">小客車 60~68%、Bus &lt; 1%</text>
+  <text x="570" y="565" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14" font-weight="normal">麻豆段重型貨運 ~17% vs 新營段 ~10%</text>
+  <text x="570" y="590" text-anchor="start" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="13" font-weight="normal">符合工業帶物流特徵</text>
+  <line x1="40" y1="665" x2="1240" y2="665" stroke="#f5ead8" stroke-width="1"/>
+  <text x="40" y="695" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">資料來源：高速公路局 TDCS M06A</text>
+  <text x="640" y="695" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">資料正確性稽核</text>
+  <text x="1220" y="695" text-anchor="end" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14">10/16</text>
+</svg>

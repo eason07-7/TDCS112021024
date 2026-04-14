@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1280" height="70" fill="#a5743d"/>
+  <rect x="0" y="0" width="6" height="70" fill="#6b4a23"/>
+  <text x="40" y="46" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="28" font-weight="bold">10 學習心得 ‧ 謝晴如</text>
+  <text x="1220" y="46" text-anchor="end" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">TDCS 2026/03</text>
+  <rect x="0" y="70" width="1280" height="50" fill="#f5ead8"/>
+  <rect x="0" y="70" width="6" height="50" fill="#c89558"/>
+  <text x="40" y="102" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18">組員 3 / 4　114021168　謝晴如　— 請自行填入貢獻與心得內文</text>
+  <rect x="60" y="150" width="1160" height="110" fill="#f5ead8" rx="8" opacity="1"/>
+  <rect x="60" y="150" width="6" height="110" fill="#a5743d" rx="3" opacity="1"/>
+  <text x="100" y="195" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="22" font-weight="bold">學號：</text>
+  <text x="200" y="195" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="24" font-weight="bold">114021168</text>
+  <text x="460" y="195" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="22" font-weight="bold">姓名：</text>
+  <text x="560" y="195" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="24" font-weight="bold">謝晴如</text>
+  <text x="100" y="240" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">貢獻：</text>
+  <text x="200" y="240" text-anchor="start" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="normal">____________________________________________________________</text>
+  <rect x="60" y="285" width="1160" height="335" fill="#FFFFFF" stroke="#D0D7E0" stroke-width="1" rx="8" opacity="1"/>
+  <text x="90" y="325" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="20" font-weight="bold">學習心得：</text>
+  <line x1="90" y1="375" x2="1190" y2="375" stroke="#E0E0E0" stroke-width="1"/>
+  <line x1="90" y1="405" x2="1190" y2="405" stroke="#E0E0E0" stroke-width="1"/>
+  <line x1="90" y1="435" x2="1190" y2="435" stroke="#E0E0E0" stroke-width="1"/>
+  <line x1="90" y1="465" x2="1190" y2="465" stroke="#E0E0E0" stroke-width="1"/>
+  <line x1="90" y1="495" x2="1190" y2="495" stroke="#E0E0E0" stroke-width="1"/>
+  <line x1="90" y1="525" x2="1190" y2="525" stroke="#E0E0E0" stroke-width="1"/>
+  <line x1="90" y1="555" x2="1190" y2="555" stroke="#E0E0E0" stroke-width="1"/>
+  <line x1="90" y1="585" x2="1190" y2="585" stroke="#E0E0E0" stroke-width="1"/>
+  <line x1="40" y1="665" x2="1240" y2="665" stroke="#f5ead8" stroke-width="1"/>
+  <text x="40" y="695" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">資料來源：高速公路局 TDCS M06A</text>
+  <text x="640" y="695" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">學習心得 · 謝晴如</text>
+  <text x="1220" y="695" text-anchor="end" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14">14/16</text>
+</svg>

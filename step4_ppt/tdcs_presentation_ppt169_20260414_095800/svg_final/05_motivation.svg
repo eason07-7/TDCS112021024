@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1280" height="70" fill="#a5743d"/>
+  <rect x="0" y="0" width="6" height="70" fill="#6b4a23"/>
+  <text x="40" y="46" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="28" font-weight="bold">03 動機與目的</text>
+  <text x="1220" y="46" text-anchor="end" fill="#FFFFFF" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="bold">TDCS 2026/03</text>
+  <rect x="0" y="70" width="1280" height="50" fill="#f5ead8"/>
+  <rect x="0" y="70" width="6" height="50" fill="#c89558"/>
+  <text x="40" y="102" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18">為何選下營-麻豆段？複雜交會節點 + 工業物流 + 南科通勤</text>
+  <rect x="60" y="150" width="560" height="470" fill="#f5ead8" rx="8" opacity="1"/>
+  <rect x="60" y="150" width="6" height="470" fill="#a5743d" rx="3" opacity="1"/>
+  <text x="90" y="195" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="24" font-weight="bold">選題動機</text>
+  <text x="90" y="240" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="normal">• 國道1 × 國道8 交會節點</text>
+  <text x="90" y="280" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="normal">• 銜接台南市區、南科通勤、</text>
+  <text x="90" y="320" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="normal">• 麻豆工業帶與嘉義方向</text>
+  <text x="90" y="360" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="18" font-weight="normal">• 車流結構多元具分析價值</text>
+  <rect x="660" y="150" width="560" height="470" fill="#f5ead8" rx="8" opacity="1"/>
+  <rect x="660" y="150" width="6" height="470" fill="#c89558" rx="3" opacity="1"/>
+  <text x="690" y="195" text-anchor="start" fill="#a5743d" font-family="Microsoft YaHei, Arial, sans-serif" font-size="24" font-weight="bold">研究問題與目標</text>
+  <text x="690" y="240" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">Q1  4 匝道 3 月車流規律為何？</text>
+  <text x="690" y="280" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">Q2  車種 × 星期分佈如何？</text>
+  <text x="690" y="320" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">Q3  能否以自動化取代人工？</text>
+  <text x="690" y="360" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal"></text>
+  <text x="690" y="400" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">產出：可重複執行的資料管線</text>
+  <text x="690" y="440" text-anchor="start" fill="#333333" font-family="Microsoft YaHei, Arial, sans-serif" font-size="17" font-weight="normal">      + AI 輔助跨檔洞察報告</text>
+  <line x1="40" y1="665" x2="1240" y2="665" stroke="#f5ead8" stroke-width="1"/>
+  <text x="40" y="695" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">資料來源：高速公路局 TDCS M06A</text>
+  <text x="640" y="695" text-anchor="middle" fill="#999999" font-family="Microsoft YaHei, Arial, sans-serif" font-size="12">動機與目的</text>
+  <text x="1220" y="695" text-anchor="end" fill="#666666" font-family="Microsoft YaHei, Arial, sans-serif" font-size="14">5/16</text>
+</svg>
