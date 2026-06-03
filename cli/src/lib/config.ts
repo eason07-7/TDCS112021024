@@ -10,7 +10,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 
-export const DEFAULT_ENDPOINT = 'https://placeholder.invalid/';
+export const DEFAULT_ENDPOINT = 'https://2lrnfw6699.execute-api.us-east-1.amazonaws.com';
 export const CONFIG_FILE_NAME = 'config.json';
 export const CONFIG_DIR_NAME = '.tdcs-dl';
 export const ENV_ENDPOINT = 'TDCS_DL_ENDPOINT';

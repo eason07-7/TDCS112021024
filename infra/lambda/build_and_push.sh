@@ -30,7 +30,12 @@ npx esbuild src/index.ts \
   --external:@aws-sdk/*
 
 echo "[2/4] docker build ..."
-docker build -t "${REPO}:${TAG}" .
+# --provenance=false --platform=linux/amd64：強制單一 Docker v2 manifest、避免
+# Docker Desktop 4.x+ buildx 預設輸出 OCI manifest list + attestation manifest、
+# 而 Lambda runtime 拒收 OCI manifest（InvalidParameterValueException：The image
+# manifest, config or layer media type ... is not supported）。
+# 2026-06-04 PLAN_E7 M6 deploy_worker 實證 — 沒加會在 terraform apply 卡 Lambda 步。
+docker build --provenance=false --platform=linux/amd64 -t "${REPO}:${TAG}" .
 
 echo "[3/4] ECR login ..."
 aws ecr get-login-password --region "${REGION}" \
