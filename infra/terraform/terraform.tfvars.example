@@ -1,0 +1,11 @@
+# terraform.tfvars.example
+# -------------------------------------------------
+# 複製此檔為 terraform.tfvars，填入真實值，
+# 注意：terraform.tfvars 已加進 .gitignore，禁 commit。
+# -------------------------------------------------
+
+aws_region            = "us-east-1"
+aws_account_id        = "654485222392"
+bucket_name           = "112021024"
+lambda_execution_role = "arn:aws:iam::654485222392:role/LabRole"
+lambda_image_tag      = "latest"
