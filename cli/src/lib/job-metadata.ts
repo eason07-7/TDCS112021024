@@ -85,3 +85,58 @@ export async function readJobRecord(
 
   return (await resp.json()) as JobRecord;
 }
+
+// -----------------------------------------------------------------------
+// pollUntilDone
+// -----------------------------------------------------------------------
+
+export interface PollOptions {
+  /** Give up after this long (default 15 min — Lambda max). */
+  timeoutMs?: number;
+  /** Wait between polls (default 5 s). */
+  intervalMs?: number;
+  /** Called once per poll with the latest record (for progress UI). */
+  onPoll?: (rec: JobRecord) => void;
+}
+
+/**
+ * Poll `GET <endpoint>/jobs/<jobId>` until the job reaches a terminal state.
+ *
+ * Resolves with the final JobRecord when `status === 'done'`.
+ * Throws when:
+ *   - `status === 'error'`  → includes the record's error message
+ *   - the record disappears (404 → null)
+ *   - the timeout elapses
+ *
+ * Robust to both a synchronous handler (first poll already `done`) and an async
+ * one (polls through `processing` until `done`). Uses Node 20 global `fetch`
+ * via readJobRecord — no external HTTP lib.
+ */
+export async function pollUntilDone(
+  endpoint: string,
+  jobId: string,
+  opts?: PollOptions,
+): Promise<JobRecord> {
+  const timeoutMs = opts?.timeoutMs ?? 15 * 60 * 1000;
+  const intervalMs = opts?.intervalMs ?? 5000;
+  const start = Date.now();
+
+  for (;;) {
+    if (Date.now() - start > timeoutMs) {
+      throw new Error(`pollUntilDone timeout after ${timeoutMs}ms (job ${jobId})`);
+    }
+
+    const rec = await readJobRecord(endpoint, jobId);
+    if (rec === null) {
+      throw new Error(`job ${jobId} not found while polling`);
+    }
+    opts?.onPoll?.(rec);
+
+    if (rec.status === 'done') return rec;
+    if (rec.status === 'error') {
+      throw new Error(`job ${jobId} failed: ${rec.error ?? 'unknown error'}`);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+}

@@ -40,6 +40,15 @@ export interface JobRecord {
   year?: number;
   month?: number;
 
+  // Clean result (Lambda PLAN_E9 M1-M3 written, status='done')
+  yyyymm?: string;
+  scannedFiles?: number;
+  rowCount?: number;
+  parquetKey?: string;
+  parquetBytes?: number;
+  query_execution_id?: string;  // Athena MSCK REPAIR (M3)
+  note?: string;                // e.g. 'no matching rows after gantry filter'
+
   // Error detail (status='error')
   error?: string;
 }

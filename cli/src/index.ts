@@ -6,6 +6,7 @@ import App from './wizard/App';
 import { registerConfigCommands } from './commands/config';
 import { registerStatusCommand } from './commands/status';
 import { registerPullCommand } from './commands/pull';
+import { registerCleanCommand } from './commands/clean';
 
 const program = new Command();
 
@@ -20,5 +21,6 @@ program
 registerConfigCommands(program);
 registerStatusCommand(program);
 registerPullCommand(program);
+registerCleanCommand(program);
 
 program.parse(process.argv);
