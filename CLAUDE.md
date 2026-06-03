@@ -87,21 +87,21 @@
 AWS_ACCESS_KEY_ID=          # Learner Lab 4hr session token
 AWS_SECRET_ACCESS_KEY=
 AWS_SESSION_TOKEN=
-AWS_REGION=ap-northeast-1   # 🔒 東京區（與 ai_workspace 的 us-east-1 不同）
-GEMINI_API_KEY=             # step3 / MCP analyze 用
+AWS_REGION=us-east-1        # 🔒 Learner Lab 強制、與 MASTER_PLAN 鎖板一致
+AWS_ACCOUNT_ID=654485222392 # 🔒 Lab account、cross-session sanity check 用
 ```
 
-**注意 region 差異**：MASTER_PLAN.md 規劃「作業版」EC2 + S3 在 **ap-northeast-1（東京）**，與 ai_workspace 用的 us-east-1（Learner Lab 強制）**不同**。MCP 階段要決定是否搬遷 / 共用 bucket。
+**Region 鎖板**（v2 後校準）：本工作區與 ai_workspace 統一用 **us-east-1**（Learner Lab 強制）。原 v1 文件曾寫 ap-northeast-1（作業版 EC2 + S3 規劃）、已被 v2 pivot 取代。所有部署 + bucket + Lambda + Athena 都在 us-east-1。
 
 ---
 
-## 共用資產（與 ai_workspace 共享）
+## 共用資產（v2 校準）
 
 | 項目 | 說明 |
 |---|---|
-| `tdcs_clean/`（在 repo 根） | 共用清洗 lib（PLAN_E03 Phase 0 完成、O OR D 邏輯、14,058 行驗收 PASS） |
-| S3 bucket `112021134trafficdatacollectionsyste` | ai_workspace 負責上傳、mcp_workspace 可讀 |
-| `config/gantry_to_county.json` | 縣市對應、跨工作區共用 |
+| `tdcs_clean/`（在 repo 根） | v1 共用清洗 lib（O OR D 邏輯、14,058 行驗收 PASS）；v2 已翻譯為 TS `cli/src/lib/tdcs-clean.ts`、保 byte-level diff = 0 |
+| **S3 bucket `112021024`** | **v2 主 bucket**（mcp_workspace 部署用、Learner Lab account 654485222392）。**舊 v1 bucket `112021134trafficdatacollectionsyste` 已退役**、PLAN_E5 v2 pivot 後不再使用 |
+| `config/gantry_to_county.json` | v1 345 個 gantry 縣市對應；v2 PLAN_E6 M3 用 `cli/data/gantries_v4_1.json`（339 個、TDCS 手冊 v4.1）取代、跨工作區仍可共用 |
 
 ---
 
@@ -112,7 +112,7 @@ GEMINI_API_KEY=             # step3 / MCP analyze 用
 | 硬編碼 `202603` | 參數化 `YEAR` / `MONTH`（MCP 階段要通用化）|
 | 沿用 ai_workspace M06A `O OR D` 舊邏輯 | ai_workspace 已改 v3（M03A 訓練 + M06A regex OD），mcp_workspace 若做相同分析、要同步升級邏輯（見 ai_workspace BUG_OD_FILTER.md）|
 | 中文路徑亂碼 | UTF-8 + `chcp 65001` + `$env:PYTHONIOENCODING="utf-8"` |
-| 跨 region 操作 | ai_workspace us-east-1 vs mcp_workspace ap-northeast-1 — bucket 選一個 |
+| ~~跨 region 操作~~ | ~~v1 痕跡、v2 已統一 us-east-1、本陷阱不再適用~~ |
 
 ---
 

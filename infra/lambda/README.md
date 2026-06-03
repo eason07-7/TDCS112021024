@@ -31,7 +31,7 @@ bash infra/lambda/build_and_push.sh
 |---|---|
 | Route | `POST /clean` |
 | Request body | 任意 JSON（PLAN_E9 接清洗參數：gantries/yyyymm/outputDest）|
-| Response 202 | `{ "job_id": "<uuid>" }` |
+| Response 202 | `{ "job_id": "<uuid>" }` （Accepted、handler line 83 `jsonResponse(202, ...)`；PLAN_E7 事件 #10 Lead 抽驗時 `curl -s` 未印 status code、誤推為 200、實作以本欄為準） |
 | S3 寫入 | `s3://<BUCKET>/jobs/<job_id>.json` = `{ job_id, status: "accepted", echo: <body>, timestamp: ISO8601 }` |
 
 **PLAN_E9 擴充**：status 欄位改為 `queued → processing → done/error`、echo 替換為實際清洗任務參數與進度
