@@ -36,6 +36,29 @@ jest.mock('@aws-sdk/client-s3', () => ({
   },
 }));
 
+// @aws-sdk/client-athena: MSCK REPAIR mock (PLAN_E9 M3)
+const mockAthenaSend = jest.fn();
+jest.mock('@aws-sdk/client-athena', () => ({
+  AthenaClient: jest.fn().mockImplementation(() => ({ send: mockAthenaSend })),
+  StartQueryExecutionCommand: jest.fn().mockImplementation((input) => ({ _type: 'StartQuery', input })),
+  GetQueryExecutionCommand: jest.fn().mockImplementation((input) => ({ _type: 'GetQuery', input })),
+}));
+
+// Drive the REPAIR poll loop with zero delay so tests don't wait real seconds
+// (repairPartitions reads this at call-time — see index.ts).
+process.env.ATHENA_POLL_INTERVAL_MS = '0';
+
+/** Default Athena mock: StartQuery → id, GetQuery → SUCCEEDED (happy path). */
+function athenaSucceeds(queryId = 'q-mock-e9-m3'): void {
+  mockAthenaSend.mockImplementation((cmd: any) => {
+    if (cmd._type === 'StartQuery') return Promise.resolve({ QueryExecutionId: queryId });
+    if (cmd._type === 'GetQuery') {
+      return Promise.resolve({ QueryExecution: { Status: { State: 'SUCCEEDED' } } });
+    }
+    return Promise.resolve({});
+  });
+}
+
 import { handler } from './index';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import * as fs from 'node:fs';
@@ -173,6 +196,7 @@ describe('POST /clean — true cleaning happy path (PLAN_E9 M1)', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    athenaSucceeds(); // M3: handler now runs MSCK REPAIR before reporting done
 
     // polars readRecords → writeParquet creates a stub file
     readRecords.mockReturnValue({
@@ -270,6 +294,7 @@ describe('Parquet write — S3 path + ContentType (PLAN_E9 M2)', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    athenaSucceeds(); // M3: handler now runs MSCK REPAIR before reporting done
     readRecords.mockReturnValue({
       writeParquet: jest.fn().mockImplementation((p: string) => {
         fs.writeFileSync(p, Buffer.from('PARQUET_STUB'));
@@ -318,6 +343,95 @@ describe('Parquet write — S3 path + ContentType (PLAN_E9 M2)', () => {
     // Must match: cleaned_v2/yyyymm=<YYYYMM>/cleaned.parquet (Glue partition format)
     expect(parquetPut[0].Key).toMatch(/^cleaned_v2\/yyyymm=\d{6}\/cleaned\.parquet$/);
     expect(parquetPut[0].Key).toBe('cleaned_v2/yyyymm=202603/cleaned.parquet');
+  });
+});
+
+// ── M3: Athena MSCK REPAIR partition discovery ────────────────────────────────
+
+describe('MSCK REPAIR partition discovery (PLAN_E9 M3)', () => {
+  const FAKE_CSV = [
+    '0,1,2,3,4,5,6,7',
+    '3,2026-03-01 01:00:00,01F2930N,2026-03-01 01:30:00,01F3019N,15.5,1,OK',
+  ].join('\n');
+  const FAKE_GZ = gzipSync(FAKE_CSV);
+  const { readRecords } = require('nodejs-polars') as { readRecords: jest.Mock };
+
+  // Full clean happy path (S3 + polars) so the handler reaches the REPAIR step.
+  beforeEach(() => {
+    jest.clearAllMocks();
+    readRecords.mockReturnValue({
+      writeParquet: jest.fn().mockImplementation((p: string) => {
+        fs.writeFileSync(p, Buffer.from('PARQUET_STUB'));
+      }),
+      height: 1,
+    });
+    mockS3Send.mockImplementation((cmd: any) => {
+      if (cmd._type === 'List') {
+        return Promise.resolve({
+          Contents: [{ Key: 'raw/yyyymm=202603/TDCS_M06A_20260301_010000.csv.gz' }],
+        });
+      }
+      if (cmd._type === 'Get') {
+        return Promise.resolve({
+          Body: { transformToByteArray: () => Promise.resolve(new Uint8Array(FAKE_GZ)) },
+        });
+      }
+      return Promise.resolve({}); // Put → ok
+    });
+  });
+
+  const cleanEvent = () => makeEvent({
+    body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
+  });
+
+  test('SUCCEEDED → REPAIR query issued (db/table/workgroup) + done record has query_execution_id', async () => {
+    athenaSucceeds('q-success-123');
+    const result = (await handler(cleanEvent())) as APIGatewayProxyStructuredResultV2;
+    expect(result.statusCode).toBe(200);
+
+    // StartQueryExecution called with the right MSCK REPAIR query + workgroup + db
+    const { StartQueryExecutionCommand } = require('@aws-sdk/client-athena');
+    const startInput = (StartQueryExecutionCommand as jest.Mock).mock.calls[0][0];
+    expect(startInput.QueryString).toBe('MSCK REPAIR TABLE tdcs_dl.cleaned_v2_skeleton');
+    expect(startInput.WorkGroup).toBe('tdcs-dl-wg');
+    expect(startInput.QueryExecutionContext).toEqual({ Database: 'tdcs_dl' });
+
+    // done job record carries query_execution_id
+    const { PutObjectCommand } = require('@aws-sdk/client-s3');
+    const jobPuts = (PutObjectCommand as jest.Mock).mock.calls.filter(
+      ([input]: [any]) => String(input?.Key ?? '').startsWith('jobs/'),
+    );
+    const lastRecord = JSON.parse(jobPuts[jobPuts.length - 1][0].Body as string);
+    expect(lastRecord.status).toBe('done');
+    expect(lastRecord.query_execution_id).toBe('q-success-123');
+  });
+
+  test('FAILED → handler 500 + status=error with StateChangeReason + query_execution_id', async () => {
+    mockAthenaSend.mockImplementation((cmd: any) => {
+      if (cmd._type === 'StartQuery') return Promise.resolve({ QueryExecutionId: 'q-fail-9' });
+      if (cmd._type === 'GetQuery') {
+        return Promise.resolve({
+          QueryExecution: { Status: { State: 'FAILED', StateChangeReason: 'SYNTAX_ERROR' } },
+        });
+      }
+      return Promise.resolve({});
+    });
+
+    const result = (await handler(cleanEvent())) as APIGatewayProxyStructuredResultV2;
+    expect(result.statusCode).toBe(500);
+    const body = JSON.parse(result.body ?? '{}');
+    expect(body.status).toBe('error');
+    expect(body.error).toContain('MSCK REPAIR FAILED');
+    expect(body.error).toContain('SYNTAX_ERROR');
+
+    // error job record persisted with status=error + the failed query's id (debug)
+    const { PutObjectCommand } = require('@aws-sdk/client-s3');
+    const jobPuts = (PutObjectCommand as jest.Mock).mock.calls.filter(
+      ([input]: [any]) => String(input?.Key ?? '').startsWith('jobs/'),
+    );
+    const lastRecord = JSON.parse(jobPuts[jobPuts.length - 1][0].Body as string);
+    expect(lastRecord.status).toBe('error');
+    expect(lastRecord.query_execution_id).toBe('q-fail-9');
   });
 });
 

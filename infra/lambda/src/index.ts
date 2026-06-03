@@ -9,7 +9,7 @@
  *   - tdcs-clean.ts copied from cli/src/lib/ (same logic, md5 baseline target)
  *   - Streaming: one file at a time via /tmp/current.csv (no 22 GB /tmp load)
  *   - Parquet written via nodejs-polars (pre-installed in container)
- *   - MSCK REPAIR: TODO M3 (Athena StartQueryExecution after PutObject)
+ *   - MSCK REPAIR: M3 — Athena StartQueryExecution after PutObject, polled to SUCCEEDED
  *
  * F-H3 body size guard: body > 100 KB → 413 before JSON.parse
  */
@@ -20,6 +20,11 @@ import {
   NoSuchKey,
   ListObjectsV2Command,
 } from '@aws-sdk/client-s3';
+import {
+  AthenaClient,
+  StartQueryExecutionCommand,
+  GetQueryExecutionCommand,
+} from '@aws-sdk/client-athena';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -42,6 +47,13 @@ const BUCKET = process.env.BUCKET_NAME ?? '';
 const REGION = process.env.AWS_REGION ?? 'us-east-1';
 
 const s3 = new S3Client({ region: REGION });
+const athena = new AthenaClient({ region: REGION });
+
+// ── Athena MSCK REPAIR config (PLAN_E9 M3) ────────────────────────────────────
+// Glue/Athena resources fixed by infra/terraform (glue.tf + athena.tf):
+const REPAIR_DATABASE = 'tdcs_dl';
+const REPAIR_TABLE = 'cleaned_v2_skeleton';
+const REPAIR_WORKGROUP = 'tdcs-dl-wg';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -80,6 +92,68 @@ function gunzipBuffer(buf: Buffer): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     zlib.gunzip(buf, (err, result) => (err ? reject(err) : resolve(result)));
   });
+}
+
+/**
+ * Thrown by repairPartitions when REPAIR fails after a query was started, so the
+ * handler can still record the QueryExecutionId (debug: find it in Athena console).
+ */
+class MsckRepairError extends Error {
+  constructor(message: string, readonly queryExecutionId: string | undefined) {
+    super(message);
+    this.name = 'MsckRepairError';
+  }
+}
+
+/**
+ * Run `MSCK REPAIR TABLE` on the cleaned_v2 table via Athena so Glue discovers
+ * the freshly-written `yyyymm=` partition, then poll until the query finishes.
+ *
+ * Why we poll (not fire-and-forget): the query layer (PLAN_E10 `tdcs-dl query`)
+ * must be able to SELECT the just-written partition the moment /clean reports
+ * `done`. Returning before REPAIR SUCCEEDED would let a query miss the new month.
+ *
+ * Fail paths (all surfaced as throws → handler marks the job status=error):
+ *   - Athena returns no QueryExecutionId
+ *   - state FAILED / CANCELLED (includes Athena's StateChangeReason + queryId)
+ *   - timeout after REPAIR_MAX_POLLS × REPAIR_POLL_INTERVAL_MS
+ *
+ * @returns the QueryExecutionId (also stored in the job record for debugging).
+ */
+async function repairPartitions(client: AthenaClient): Promise<string> {
+  // A single-month REPAIR adds 1 partition and typically finishes in < 10 s.
+  // Budget 60 s (30 polls × 2 s) ≈ 6x buffer for Athena cold queue. Read at
+  // call-time + env-overridable so unit tests can drain the poll loop instantly.
+  const intervalMs = Number(process.env.ATHENA_POLL_INTERVAL_MS ?? 2000);
+  const maxPolls = Number(process.env.ATHENA_MAX_POLLS ?? 30);
+
+  const start = await client.send(new StartQueryExecutionCommand({
+    QueryString: `MSCK REPAIR TABLE ${REPAIR_DATABASE}.${REPAIR_TABLE}`,
+    WorkGroup: REPAIR_WORKGROUP,
+    QueryExecutionContext: { Database: REPAIR_DATABASE },
+  }));
+
+  const queryId = start.QueryExecutionId;
+  if (!queryId) {
+    throw new Error('MSCK REPAIR: Athena did not return a QueryExecutionId');
+  }
+
+  for (let i = 0; i < maxPolls; i++) {
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+    const status = await client.send(new GetQueryExecutionCommand({
+      QueryExecutionId: queryId,
+    }));
+    const state = status.QueryExecution?.Status?.State;
+    if (state === 'SUCCEEDED') return queryId;
+    if (state === 'FAILED' || state === 'CANCELLED') {
+      const reason = status.QueryExecution?.Status?.StateChangeReason ?? 'no reason given';
+      throw new MsckRepairError(`MSCK REPAIR ${state}: ${reason} (queryId=${queryId})`, queryId);
+    }
+    // QUEUED / RUNNING → keep polling
+  }
+
+  const budgetSec = (maxPolls * intervalMs) / 1000;
+  throw new MsckRepairError(`MSCK REPAIR timeout after ${budgetSec}s (queryId=${queryId})`, queryId);
 }
 
 // ── main handler ──────────────────────────────────────────────────────────────
@@ -153,6 +227,9 @@ export async function handler(
       gantries,
       yyyymm,
     });
+
+    // Set once REPAIR runs (M3); included in both the done and error job records.
+    let queryExecutionId: string | undefined;
 
     try {
       // ── 1. List S3 raw CSV.gz for this month ──────────────────────────────
@@ -251,13 +328,9 @@ export async function handler(
         ContentLength: parquetBuf.length,
       }));
 
-      // ── 6. TODO M3: Athena MSCK REPAIR TABLE tdcs_dl.cleaned_v2_skeleton ──
-      // Implemented in PLAN_E9 M3. After PutObject, run:
-      // await athena.send(new StartQueryExecutionCommand({
-      //   QueryString: 'MSCK REPAIR TABLE tdcs_dl.cleaned_v2_skeleton',
-      //   WorkGroup: 'tdcs-dl-wg',
-      //   QueryExecutionContext: { Database: 'tdcs_dl' },
-      // }));
+      // ── 6. Athena MSCK REPAIR → Glue discovers the new yyyymm partition ──
+      // Must finish before we report `done` so PLAN_E10 queries see this month.
+      queryExecutionId = await repairPartitions(athena);
 
       // ── 7. writeJobRecord status=done ────────────────────────────────────
       const rowCount = withWeek.length;
@@ -270,6 +343,7 @@ export async function handler(
         rowCount,
         parquetKey,
         parquetBytes: parquetBuf.length,
+        query_execution_id: queryExecutionId,
       });
 
       return jsonResponse(200, {
@@ -280,12 +354,17 @@ export async function handler(
       });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
+      // If REPAIR failed, recover its queryId for the record (it threw before
+      // the `queryExecutionId = await ...` assignment could complete).
+      if (e instanceof MsckRepairError) queryExecutionId = e.queryExecutionId;
       await putJobRecord(jobId, {
         job_id: jobId,
         status: 'error',
         timestamp: new Date().toISOString(),
         year, month, gantries, yyyymm,
         error: msg,
+        // set if MSCK REPAIR was the failing step; undefined for earlier failures
+        query_execution_id: queryExecutionId,
       });
       return jsonResponse(500, { job_id: jobId, status: 'error', error: msg });
     }
