@@ -257,6 +257,70 @@ describe('POST /clean — true cleaning happy path (PLAN_E9 M1)', () => {
   });
 });
 
+// ── M2: Parquet write + S3 path alignment ─────────────────────────────────────
+
+describe('Parquet write — S3 path + ContentType (PLAN_E9 M2)', () => {
+  const FAKE_CSV = [
+    '0,1,2,3,4,5,6,7',
+    '3,2026-03-01 01:00:00,01F2930N,2026-03-01 01:30:00,01F3019N,15.5,1,OK',
+  ].join('\n');
+
+  const FAKE_GZ = gzipSync(FAKE_CSV);
+  const { readRecords } = require('nodejs-polars') as { readRecords: jest.Mock };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    readRecords.mockReturnValue({
+      writeParquet: jest.fn().mockImplementation((p: string) => {
+        fs.writeFileSync(p, Buffer.from('PARQUET_STUB'));
+      }),
+      height: 1,
+    });
+    mockS3Send.mockImplementation((cmd: any) => {
+      if (cmd._type === 'List') {
+        return Promise.resolve({
+          Contents: [{ Key: 'raw/yyyymm=202603/TDCS_M06A_20260301_010000.csv.gz' }],
+        });
+      }
+      if (cmd._type === 'Get') {
+        return Promise.resolve({
+          Body: { transformToByteArray: () => Promise.resolve(new Uint8Array(FAKE_GZ)) },
+        });
+      }
+      return Promise.resolve({});
+    });
+  });
+
+  test('Parquet PutObject ContentType = application/octet-stream', async () => {
+    const event = makeEvent({
+      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
+    });
+    await handler(event);
+
+    const { PutObjectCommand } = require('@aws-sdk/client-s3');
+    const parquetPut = (PutObjectCommand as jest.Mock).mock.calls.find(
+      ([input]: [any]) => String(input?.Key ?? '').includes('cleaned_v2'),
+    );
+    expect(parquetPut).toBeTruthy();
+    expect(parquetPut[0].ContentType).toBe('application/octet-stream');
+  });
+
+  test('Parquet S3 key follows Hive partition format yyyymm=YYYYMM/cleaned.parquet', async () => {
+    const event = makeEvent({
+      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
+    });
+    await handler(event);
+
+    const { PutObjectCommand } = require('@aws-sdk/client-s3');
+    const parquetPut = (PutObjectCommand as jest.Mock).mock.calls.find(
+      ([input]: [any]) => String(input?.Key ?? '').includes('cleaned_v2'),
+    );
+    // Must match: cleaned_v2/yyyymm=<YYYYMM>/cleaned.parquet (Glue partition format)
+    expect(parquetPut[0].Key).toMatch(/^cleaned_v2\/yyyymm=\d{6}\/cleaned\.parquet$/);
+    expect(parquetPut[0].Key).toBe('cleaned_v2/yyyymm=202603/cleaned.parquet');
+  });
+});
+
 // ── GET /jobs/{id} ────────────────────────────────────────────────────────────
 
 describe('GET /jobs/{id}', () => {

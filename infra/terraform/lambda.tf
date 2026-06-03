@@ -24,5 +24,11 @@ resource "aws_lambda_function" "cleaner" {
     }
   }
 
+  # M2: 1 GB ephemeral /tmp for Parquet write (cleaned_v2 single file ≤ 200 MB)
+  # Default 512 MB is insufficient for streaming 22 GB raw + write Parquet.
+  ephemeral_storage {
+    size = 1024
+  }
+
   depends_on = [aws_cloudwatch_log_group.lambda_logs]
 }
