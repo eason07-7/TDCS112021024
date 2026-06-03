@@ -1,0 +1,27 @@
+# E2 EC2 spike — us-east-1 outbound IP TDCS connectivity test
+# Instance: i-0bf4eaf68f99ce8f1 (t2.micro, AL2023, us-east-1)
+# Launch time: 2026-06-02T08:12:24+00:00
+# Method: user-data → /dev/console → get-console-output
+
+====E2_RESULT_START====
+===IP===
+54.242.0.217
+
+===TDCS_ROOT===
+curl_exit=28 http_status=000
+
+===TDCS_M06A===
+curl_exit=28 http_status=000
+====E2_RESULT_END====
+
+# curl_exit=28 = CURLE_OPERATION_TIMEDOUT (30s timeout)
+# http_status=000 = no HTTP response received (connection refused / filtered)
+# 
+# Same pattern as E1 Lambda (13.219.177.113, all timeout at 15s):
+# → TDCS 對 us-east-1 全段 IP 採 silent drop（不回 403，直接丟棄連線）
+# → 任何 us-east-1 outbound IP（Lambda / EC2 / NAT GW）均無法到達 tisvcloud.freeway.gov.tw
+#
+# E1 vs E2 對比：
+#   E1 Lambda IP : 13.219.177.113 → timeout
+#   E2 EC2 IP   : 54.242.0.217   → timeout
+#   確認：IP blocking 層級在 TDCS 防火牆、不只擋 Lambda 出口

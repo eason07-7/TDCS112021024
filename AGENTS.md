@@ -1,6 +1,6 @@
 # mcp_workspace — 專案專屬規則
 
-> **工作流規則見 `workflow/CLAUDE.md`**（Lead/Worker/User 三角、五段式事件、USER_RUN 等）
+> **工作流規則見 `workflow/AGENTS.md`**（Lead/Worker/User 三角、五段式事件、USER_RUN 等）
 > **當前進度見 `workflow/INDEX.md`**（活躍 PLAN + 封存清單）
 > 本檔只放 **mcp_workspace 專屬硬規則**：可修改範圍、資料路徑、環境變數、常見陷阱
 
@@ -8,7 +8,7 @@
 
 ## 啟動順序（接手前讀這 4 份）
 
-1. `workflow/CLAUDE.md` — 工作流通則
+1. `workflow/AGENTS.md` — 工作流通則
 2. `workflow/INDEX.md` — 全貌目錄（hyperlink 直接跳）
 3. `workflow/MASTER_PLAN.md` — 專案大方向（MCP 伺服器化階段）
 4. `workflow/實驗紀錄<n>.md` 開頭 Compact + 最新 3 事件
@@ -17,7 +17,7 @@
 
 ## 專案定位（一句話）
 
-把 ai_workspace 的「下載 → 清洗 → 視覺化 → AI 分析」四大管線**包裝成 MCP 工具**，讓 Claude Desktop / GPT 用自然語言調用，跑「任意路段、任意時段」的 TDCS 分析。
+把 ai_workspace 的「下載 → 清洗 → 視覺化 → AI 分析」四大管線**包裝成 MCP 工具**，讓 Codex Desktop / GPT 用自然語言調用，跑「任意路段、任意時段」的 TDCS 分析。
 
 詳見 `workflow/MASTER_PLAN.md`。
 
