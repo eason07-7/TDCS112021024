@@ -15,8 +15,8 @@ resource "aws_lambda_function" "cleaner" {
   role          = var.lambda_execution_role
   package_type  = "Image"
   image_uri     = "${data.aws_ecr_repository.cleaner.repository_url}:${var.lambda_image_tag}"
-  memory_size   = 1024
-  timeout       = 60 # hello world 用；PLAN_E9 真清洗時升至 900（15 min Lambda max）
+  memory_size   = 2048 # F-H1 gate: 2048 MB ≈ 1.1 vCPU（vs 1024 MB ≈ 0.5 vCPU）
+  timeout       = 900  # F-H1 gate: 15 min Lambda max（單月清洗預估 ≤ 10 min on 2 GB）
 
   environment {
     variables = {

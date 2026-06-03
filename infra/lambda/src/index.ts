@@ -63,9 +63,21 @@ export async function handler(
 
   // POST /clean — accept job
   if (routeKey === 'POST /clean') {
+    // F-H3 gate: reject oversized bodies before JSON.parse
+    // Prevents bot/abuse from triggering expensive compute (PLAN_E9+) via large payloads.
+    const MAX_BODY_BYTES = 100 * 1024; // 100 KB
+    const rawBody = event.body ?? '';
+    if (rawBody.length > MAX_BODY_BYTES) {
+      return jsonResponse(413, {
+        error: 'body too large',
+        max: MAX_BODY_BYTES,
+        received: rawBody.length,
+      });
+    }
+
     let body: unknown = {};
     try {
-      body = JSON.parse(event.body ?? '{}');
+      body = JSON.parse(rawBody || '{}');
     } catch {
       return jsonResponse(400, { error: 'invalid JSON body' });
     }

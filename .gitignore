@@ -38,4 +38,16 @@ infra/terraform/.terraform.lock.hcl
 infra/terraform/terraform.tfstate
 infra/terraform/terraform.tfstate.backup
 infra/terraform/terraform.tfvars
+infra/terraform/*.auto.tfvars
 infra/terraform/*.tfplan
+
+# Lambda build artifacts（PLAN_E9 gate F-M1 test infra 後新增）
+infra/lambda/node_modules/
+infra/lambda/dist/
+infra/lambda/package-lock.json
+infra/lambda/coverage/
+# Node test cache
+**/.jest-cache/
+
+# Lambda tempdir (pull 跑時建在 OS tmp、但 --keep-temp 可能落本機)
+tdcs-dl-*/
