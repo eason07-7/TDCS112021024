@@ -32,3 +32,9 @@ variable "lambda_image_tag" {
   type        = string
   default     = "latest"
 }
+
+variable "budget_alert_email" {
+  description = "AWS Budgets / CloudWatch alarm 通知 email（不進 git、user 自己寫 terraform.tfvars）"
+  type        = string
+  default     = ""
+}

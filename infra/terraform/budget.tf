@@ -9,7 +9,12 @@
 #   `aws_budgets_budget` requires Budgets permissions (may be restricted).
 #   If `terraform apply` fails with "not authorized to perform: budgets:*",
 #   comment out the aws_budgets_budget block and rely on the CloudWatch alarm.
-#   Replace REPLACE_WITH_YOUR_EMAIL with the actual notification email.
+#
+# Email config（PLAN_E9 M6 Lead 變數化、避免 email 進 git history）：
+#   email 來源 = var.budget_alert_email、預設空字串。
+#   deploy 前在 infra/terraform/terraform.tfvars（已 .gitignore）寫一行：
+#     budget_alert_email = "你的真實 email"
+#   空字串 → notification 仍會建、但 subscriber 為空（不會寄通知、不噴錯）。
 # -----------------------------------------------------------------------
 
 # ── 1. AWS Budgets: $5 monthly cost alert ────────────────────────────────
@@ -29,7 +34,7 @@ resource "aws_budgets_budget" "lab_cost_guard" {
     threshold                  = 80
     threshold_type             = "PERCENTAGE"
     notification_type          = "ACTUAL"
-    subscriber_email_addresses = ["REPLACE_WITH_YOUR_EMAIL"]
+    subscriber_email_addresses = var.budget_alert_email != "" ? [var.budget_alert_email] : []
   }
 }
 
