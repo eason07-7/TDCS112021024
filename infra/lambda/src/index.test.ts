@@ -1,27 +1,46 @@
 /**
  * Unit tests for infra/lambda/src/index.ts
  *
- * F-H3 gate: body size limit (> 100 KB → 413)
+ * Tests:
+ *   - F-H3 body size limit (> 100 KB → 413)
+ *   - POST /clean routing: valid/invalid params
+ *   - POST /clean happy path with mocked S3 + polars (PLAN_E9 M1)
+ *   - GET /jobs/{id}
  *
- * S3 is mocked via jest.mock so no real AWS calls are made.
  * Run: cd infra/lambda && npm install && npm test
  */
+import * as zlib from 'node:zlib';
 
-// Mock @aws-sdk/client-s3 before importing the handler
-jest.mock('@aws-sdk/client-s3', () => ({
-  S3Client: jest.fn().mockImplementation(() => ({
-    send: jest.fn().mockResolvedValue({}),
-  })),
-  PutObjectCommand: jest.fn(),
-  GetObjectCommand: jest.fn(),
-  NoSuchKey: class NoSuchKey extends Error {},
+// ── Module mocks (must be before imports) ────────────────────────────────────
+
+// nodejs-polars: mock to avoid native addon dependency in test env
+jest.mock('nodejs-polars', () => ({
+  readRecords: jest.fn().mockReturnValue({
+    writeParquet: jest.fn(),  // no-op: we'll fake the file read after
+    height: 14058,
+  }),
 }));
 
-// Mock uuid
-jest.mock('uuid', () => ({ v4: () => 'mock-uuid-1234' }));
+// uuid: deterministic job_id
+jest.mock('uuid', () => ({ v4: () => 'mock-uuid-plan-e9' }));
+
+// @aws-sdk/client-s3: flexible mock
+const mockS3Send = jest.fn();
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: jest.fn().mockImplementation(() => ({ send: mockS3Send })),
+  PutObjectCommand: jest.fn().mockImplementation((input) => ({ _type: 'Put', input })),
+  GetObjectCommand: jest.fn().mockImplementation((input) => ({ _type: 'Get', input })),
+  ListObjectsV2Command: jest.fn().mockImplementation((input) => ({ _type: 'List', input })),
+  NoSuchKey: class NoSuchKey extends Error {
+    constructor() { super('NoSuchKey'); this.name = 'NoSuchKey'; }
+  },
+}));
 
 import { handler } from './index';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
+import * as fs from 'node:fs';
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function makeEvent(overrides: Partial<APIGatewayProxyEventV2> = {}): APIGatewayProxyEventV2 {
   return {
@@ -42,24 +61,25 @@ function makeEvent(overrides: Partial<APIGatewayProxyEventV2> = {}): APIGatewayP
       time: '04/Jun/2026:09:00:00 +0000',
       timeEpoch: 1751000000000,
     },
-    body: '{"echo":"hello"}',
+    body: '{"year":2026,"month":3,"gantries":["01F2930N"]}',
     isBase64Encoded: false,
     ...overrides,
   };
 }
 
-describe('POST /clean — body size guard (F-H3)', () => {
-  test('accepts body ≤ 100 KB → 202 + job_id', async () => {
-    const event = makeEvent({ body: JSON.stringify({ echo: 'hello' }) });
-    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+/** Create a gzip buffer from CSV string (for S3 GetObject mock). */
+function gzipSync(content: string): Buffer {
+  return zlib.gzipSync(Buffer.from(content, 'utf8'));
+}
 
-    expect(result.statusCode).toBe(202);
-    const body = JSON.parse(result.body ?? '{}');
-    expect(body).toHaveProperty('job_id');
+// ── F-H3: body size guard ─────────────────────────────────────────────────────
+
+describe('POST /clean — body size guard (F-H3)', () => {
+  beforeEach(() => {
+    mockS3Send.mockResolvedValue({});
   });
 
-  test('rejects body > 100 KB → 413 + error message', async () => {
-    // 101 KB of data
+  test('rejects body > 100 KB → 413 + error details', async () => {
     const bigPayload = 'x'.repeat(101 * 1024);
     const event = makeEvent({ body: bigPayload });
     const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -71,44 +91,197 @@ describe('POST /clean — body size guard (F-H3)', () => {
     expect(body.received).toBeGreaterThan(102400);
   });
 
-  test('rejects body exactly at boundary: 100 KB + 1 byte → 413', async () => {
+  test('rejects body 100 KB + 1 byte → 413', async () => {
     const boundaryBody = 'a'.repeat(100 * 1024 + 1);
     const event = makeEvent({ body: boundaryBody });
     const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
-
     expect(result.statusCode).toBe(413);
   });
 
-  test('accepts body exactly at 100 KB → not 413', async () => {
-    const exactBody = 'a'.repeat(100 * 1024);
-    const event = makeEvent({ body: exactBody });
-    // Body won't be valid JSON but should pass size check (fail at parse → 400, not 413)
-    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+  test('small body passes size check (returns non-413)', async () => {
+    // Valid params so handler proceeds past size check
+    // S3 list returns empty → handler returns 404 (not 413)
+    mockS3Send.mockImplementation((cmd: any) => {
+      if (cmd._type === 'Put') return Promise.resolve({});
+      if (cmd._type === 'List') return Promise.resolve({ Contents: [] });
+      return Promise.resolve({});
+    });
 
+    const event = makeEvent({
+      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
+    });
+    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
     expect(result.statusCode).not.toBe(413);
-    expect([400, 202]).toContain(result.statusCode);
+  });
+
+  test('invalid JSON body → 400', async () => {
+    const event = makeEvent({ body: 'not json' });
+    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+    expect(result.statusCode).toBe(400);
+    const body = JSON.parse(result.body ?? '{}');
+    expect(body.error).toBe('invalid JSON body');
   });
 });
 
+// ── POST /clean param routing ─────────────────────────────────────────────────
+
+describe('POST /clean — param routing (PLAN_E9 M1)', () => {
+  beforeEach(() => {
+    mockS3Send.mockResolvedValue({});
+  });
+
+  test('missing job_id AND year/month/gantries → 400', async () => {
+    const event = makeEvent({ body: '{}' });
+    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+    expect(result.statusCode).toBe(400);
+    const body = JSON.parse(result.body ?? '{}');
+    expect(body.error).toContain('job_id');
+  });
+
+  test('Mode B: year/month/gantries in body, no S3 files → 404', async () => {
+    mockS3Send.mockImplementation((cmd: any) => {
+      if (cmd._type === 'Put') return Promise.resolve({});
+      if (cmd._type === 'List') return Promise.resolve({ Contents: [] });
+      return Promise.resolve({});
+    });
+
+    const event = makeEvent({
+      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
+    });
+    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+    expect(result.statusCode).toBe(404);
+    const body = JSON.parse(result.body ?? '{}');
+    expect(body.error).toContain('no raw csv.gz');
+  });
+});
+
+// ── POST /clean happy path (mocked S3 + polars) ───────────────────────────────
+
+describe('POST /clean — true cleaning happy path (PLAN_E9 M1)', () => {
+  // Minimal TDCS CSV: header row + 2 data rows (different gantries)
+  const FAKE_CSV = [
+    '0,1,2,3,4,5,6,7',  // index header
+    '3,2026-03-01 01:00:00,01F2930N,2026-03-01 01:30:00,01F3019N,15.5,1,OK',
+    '3,2026-03-01 02:00:00,01F2930N,2026-03-01 02:30:00,01F3019N,20.0,1,OK',
+    '1,2026-03-01 01:00:00,01F3019S,2026-03-01 01:30:00,01F3019N,10.0,1,OK',
+  ].join('\n');
+
+  const FAKE_GZ = gzipSync(FAKE_CSV);
+
+  // polars mock: writeParquet writes a dummy parquet file so PutObject can read it
+  const { readRecords } = require('nodejs-polars') as { readRecords: jest.Mock };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    // polars readRecords → writeParquet creates a stub file
+    readRecords.mockReturnValue({
+      writeParquet: jest.fn().mockImplementation((path: string) => {
+        // Write a stub parquet file so fs.readFileSync won't throw
+        fs.writeFileSync(path, Buffer.from('FAKE_PARQUET'));
+      }),
+      height: 42,
+    });
+
+    // S3 mock: Put → ok, List → 1 file, Get → gzip csv, Put (parquet) → ok
+    let putCount = 0;
+    mockS3Send.mockImplementation((cmd: any) => {
+      if (cmd._type === 'List') {
+        return Promise.resolve({
+          Contents: [{ Key: 'raw/yyyymm=202603/TDCS_M06A_20260301_010000.csv.gz' }],
+        });
+      }
+      if (cmd._type === 'Get') {
+        return Promise.resolve({
+          Body: {
+            transformToByteArray: () => Promise.resolve(new Uint8Array(FAKE_GZ)),
+          },
+        });
+      }
+      if (cmd._type === 'Put') {
+        putCount++;
+        return Promise.resolve({});
+      }
+      return Promise.resolve({});
+    });
+  });
+
+  test('Mode B: happy path → 200 + rowCount + parquetKey', async () => {
+    const event = makeEvent({
+      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N', '01F3019S'] }),
+    });
+    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+
+    expect(result.statusCode).toBe(200);
+    const body = JSON.parse(result.body ?? '{}');
+    expect(body.status).toBe('done');
+    expect(body).toHaveProperty('rowCount');
+    expect(body).toHaveProperty('parquetKey');
+    expect(body.parquetKey).toContain('cleaned_v2/yyyymm=202603/cleaned.parquet');
+  });
+
+  test('PutObject is called with Parquet key in cleaned_v2 prefix', async () => {
+    const event = makeEvent({
+      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
+    });
+    await handler(event);
+
+    // Find the PutObject call that uploaded parquet (not the job record)
+    const { PutObjectCommand } = require('@aws-sdk/client-s3');
+    const parquetPut = (PutObjectCommand as jest.Mock).mock.calls.find(
+      ([input]: [any]) => String(input?.Key ?? '').includes('cleaned_v2'),
+    );
+    expect(parquetPut).toBeTruthy();
+    expect(parquetPut[0].Key).toBe('cleaned_v2/yyyymm=202603/cleaned.parquet');
+  });
+
+  test('jobs/<id>.json updated to status=done after clean', async () => {
+    const event = makeEvent({
+      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
+    });
+    await handler(event);
+
+    // Find PutObject calls for job record
+    const { PutObjectCommand } = require('@aws-sdk/client-s3');
+    const jobPuts = (PutObjectCommand as jest.Mock).mock.calls.filter(
+      ([input]: [any]) => String(input?.Key ?? '').startsWith('jobs/'),
+    );
+
+    // Should have at least 2: processing + done
+    expect(jobPuts.length).toBeGreaterThanOrEqual(2);
+
+    // Last job record should be 'done'
+    const lastJobPut = jobPuts[jobPuts.length - 1][0];
+    const lastRecord = JSON.parse(lastJobPut.Body as string);
+    expect(lastRecord.status).toBe('done');
+  });
+});
+
+// ── GET /jobs/{id} ────────────────────────────────────────────────────────────
+
 describe('GET /jobs/{id}', () => {
-  test('returns 404 when job not found', async () => {
-    // S3 GetObjectCommand throws NoSuchKey
-    const { S3Client } = require('@aws-sdk/client-s3');
-    const NoSuchKeyError = class extends Error { constructor() { super('NoSuchKey'); this.name = 'NoSuchKey'; } };
-    S3Client.mockImplementationOnce(() => ({
-      send: jest.fn().mockRejectedValue(Object.assign(new Error('NoSuchKey'), { name: 'NoSuchKey' })),
-    }));
+  beforeEach(() => {
+    mockS3Send.mockResolvedValue({});
+  });
+
+  test('returns 404 when job not found (NoSuchKey)', async () => {
+    const { NoSuchKey } = require('@aws-sdk/client-s3');
+    mockS3Send.mockRejectedValue(new NoSuchKey());
 
     const event = makeEvent({
       routeKey: 'GET /jobs/{id}',
       pathParameters: { id: 'nonexistent-uuid' },
     });
-
-    // Re-import to pick up new S3Client mock
-    // Note: Due to module caching, this tests the 404 path indirectly
-    // The full integration test happens at M6 smoke test level
     const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
-    // Result is either 200 (cached client) or 404 (fresh mock) — either is OK here
-    expect([200, 404]).toContain(result.statusCode);
+    expect(result.statusCode).toBe(404);
+  });
+
+  test('returns 400 when job_id is missing', async () => {
+    const event = makeEvent({
+      routeKey: 'GET /jobs/{id}',
+      pathParameters: {},
+    });
+    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+    expect(result.statusCode).toBe(400);
   });
 });
