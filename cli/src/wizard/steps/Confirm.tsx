@@ -7,10 +7,11 @@ interface Props {
   onNext: (patch?: Partial<WizardAnswers>) => void;
   onPrev: () => void;
   onQuit: () => void;
+  onSubmit: () => void;  // triggers Running phase (PLAN_E8 M5)
 }
 
-export default function ConfirmStep({ state, onNext, onPrev, onQuit }: Props) {
-  const [confirmed, setConfirmed] = useState(false);
+export default function ConfirmStep({ state, onPrev, onQuit, onSubmit }: Props) {
+  const [submitting, setSubmitting] = useState(false);
   const { answers } = state;
 
   const payload = {
@@ -22,25 +23,19 @@ export default function ConfirmStep({ state, onNext, onPrev, onQuit }: Props) {
   };
 
   useInput((input: string, key: Key) => {
+    if (submitting) return;
     if (input === 'q') { onQuit(); return; }
     if (key.escape)    { onPrev(); return; }
-    if (key.return && !confirmed) {
-      setConfirmed(true);
-      // In PLAN_E8+, this would submit to AWS backend
-      // For now: show "Would submit" and exit after brief display
-      setTimeout(() => onNext(), 1500);
-      return;
+    if (key.return) {
+      setSubmitting(true);
+      onSubmit();
     }
   });
 
-  if (confirmed) {
+  if (submitting) {
     return (
       <Box flexDirection="column">
-        <Text color="green" bold>✔ 任務已送出！</Text>
-        <Text dimColor>（PLAN_E8+ 版本將連接 AWS backend 執行實際下載 + 清洗）</Text>
-        <Box marginTop={1} borderStyle="round" borderColor="green" padding={1}>
-          <Text>Would submit: {JSON.stringify(payload, null, 2)}</Text>
-        </Box>
+        <Text color="green" bold>✔ 送出中...</Text>
       </Box>
     );
   }
@@ -76,13 +71,10 @@ export default function ConfirmStep({ state, onNext, onPrev, onQuit }: Props) {
           <Text bold color="cyan">{payload.outputDest}</Text>
         </Box>
       </Box>
-      <Box marginTop={1} borderStyle="single" borderColor="yellow" paddingX={1}>
-        <Text dimColor>⚠ PLAN_E8+ 版本才實際連接 AWS backend。目前按 Enter 顯示 payload 後離開。</Text>
-      </Box>
       <Box marginTop={1}>
         <Text dimColor>確認後按 </Text>
         <Text bold color="green">Enter</Text>
-        <Text dimColor> 提交 · Esc 返回修改</Text>
+        <Text dimColor> 提交 · Esc 返回修改 · q 離開</Text>
       </Box>
     </Box>
   );

@@ -4,6 +4,8 @@ import React from 'react';
 import { render } from 'ink';
 import App from './wizard/App';
 import { registerConfigCommands } from './commands/config';
+import { registerStatusCommand } from './commands/status';
+import { registerPullCommand } from './commands/pull';
 
 const program = new Command();
 
@@ -16,5 +18,7 @@ program
   });
 
 registerConfigCommands(program);
+registerStatusCommand(program);
+registerPullCommand(program);
 
 program.parse(process.argv);

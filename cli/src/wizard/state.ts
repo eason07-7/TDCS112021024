@@ -16,6 +16,9 @@ export interface WizardAnswers {
 
 export type StepId = 'data' | 'time' | 'gantry' | 'output' | 'confirm';
 
+/** Post-confirm execution state (orthogonal to wizard step navigation). */
+export type RunPhase = 'idle' | 'running' | 'done' | 'error';
+
 export const STEPS: StepId[] = ['data', 'time', 'gantry', 'output', 'confirm'];
 
 export const STEP_LABELS: Record<StepId, string> = {
@@ -30,6 +33,9 @@ export interface WizardState {
   currentStep: StepId;
   history: StepId[];
   answers: Partial<WizardAnswers>;
+  runPhase: RunPhase;
+  jobId?: string;
+  runError?: string;
 }
 
 export function initialState(): WizardState {
@@ -40,6 +46,7 @@ export function initialState(): WizardState {
       dataType: 'M06A',
       gantries: [],
     },
+    runPhase: 'idle',
   };
 }
 
@@ -47,6 +54,7 @@ export function goNext(state: WizardState, patch: Partial<WizardAnswers> = {}): 
   const idx = STEPS.indexOf(state.currentStep);
   if (idx >= STEPS.length - 1) return state;
   return {
+    ...state,
     currentStep: STEPS[idx + 1],
     history: [...state.history, state.currentStep],
     answers: { ...state.answers, ...patch },
@@ -57,8 +65,8 @@ export function goPrev(state: WizardState): WizardState {
   if (state.history.length === 0) return state;
   const prev = state.history[state.history.length - 1];
   return {
+    ...state,
     currentStep: prev,
     history: state.history.slice(0, -1),
-    answers: state.answers,
   };
 }

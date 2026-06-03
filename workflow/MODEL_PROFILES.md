@@ -16,7 +16,8 @@
 
 | Worker | 模型 | 首次派工 | 最後派工 | 任務領域（累積） | 狀態 |
 |---|---|---|---|---|---|
-| `opus_worker` | Claude Opus 4.8 | 2026-06-02 / PLAN_E6 / 階段審查 | **2026-06-04 / PLAN_E5-E7 gate audit + strategic review**（10 finding：4H+3M+3L、0 阻擋 E8；事件 #2 AWS reframe 提案、user 課程後參考） | 跨檔架構 / 高 stake 設計 / 審查 / 長文件編輯；E6 audit（1C+3H+5M）+ E5-E7 gate audit + strategic reframe | ⚪ 待命 |
+| `opus_worker` | Claude Opus 4.8 | 2026-06-02 / PLAN_E6 / 階段審查 | **2026-06-04 / PLAN_E5-E7 gate audit + strategic review**（10 finding：4H+3M+3L、0 阻擋 E8；事件 #2 AWS reframe 提案、user 課程後參考） | **排錯 / audit 專責**（user 2026-06-04 拍板）：跨檔架構審查 / spec drift 排查 / PLAN 收尾 gate / strategic review；E6 audit（1C+3H+5M）+ E5-E7 gate audit | ⚪ 待命 |
+| `opus_worker_2` | Claude Opus 4.8 | _(待派)_ | — | **Lead 主導 dev 任務執行**（user 2026-06-04 新增、與 opus_worker 分工）：code-heavy / 跨檔重構 / 複雜邏輯設計即實作 / 多面 trade-off 評估；**不做 audit**（audit 留 opus_worker） | ⏳ 待派 |
 | `sonnet_worker` | Claude Sonnet 4.6 | 2026-06-02 / PLAN_E5 / M2-M3 | 2026-06-04 / PLAN_E7 M1-M5（terraform 骨架 + S3 marker + Lambda Container + API GW + Glue/Athena、5 milestone 全綠、4 次 spec drift 自抓） | E2/E3/E5-E7；CLI 骨架/TUI/Gantry/tdcs_clean/Baseline（E6 M1-M5）；E6 opus audit 6 finding 修補；E7 IaC + Lambda + Glue + Athena（M1-M5）| ⚪ 待命 |
 | `deploy_worker` | Claude Opus 4.7 (1M ctx) | **2026-06-04 / PLAN_E7 M6**（遠端桌機 D:\p\mcp_workspace、Docker + Terraform + AWS CLI、15 resource apply + smoke 3 段全 PASS、3 個 PS workaround 自解） | 同首次 | **跨機器部署執行**（遠端桌機 deploy 場景、不寫 code 只跑部署）：terraform apply / docker push / smoke test；M6 為首次出場 | ⚪ 待命 |
 | `gpt5_worker` | GPT-5 high | _(待派)_ | — | spec-clear 演算法實作 / 結構化邏輯 / 程式碼服從度高 | ⏳ 待派 |
@@ -30,7 +31,7 @@
 
 ### 0.2 派工原則（本專案）
 
-1. **5 個 worker 固定、不開新名字**——依模型強項（§1+）選 worker、不依任務領域命名（2026-06-04 後新增 `deploy_worker` 處理跨機器部署場景、原 4 worker 規則不變）
+1. **6 個 worker 固定、不開新名字**——依模型強項（§1+）選 worker、不依任務領域命名（2026-06-04 後新增 `deploy_worker` 處理跨機器部署場景、再新增 `opus_worker_2` 作 Lead dev 任務執行專責；`_2` 純 instance 區分、不違反「不依任務領域命名」原則、實質定位靠 onboarding prompt 告知）
 2. **第一次派 = 完整 onboard**：含 `workflow/CLAUDE.md` + `MASTER_PLAN.md` + 當前 `PLAN_E<n>.md` + 當前實驗紀錄 + 品質紀律 §0.3 + 任務 spec + 紅線 + 完成動作
    - **例外**：`haiku_worker` 第一次 onboard 用**精簡版**（推理深度淺、長 context 易掉細節）、只讀 `CLAUDE.md §0.3 + §1 + §4` + `MODEL_PROFILES §0.1 + §1 Haiku profile` + `INDEX.md`
 3. **第二次起 = 續派短指令**：worker session 已有 context、Lead 只給「本次任務 + 額外注意點 + 寫事件位置」即可、不需重灌必讀檔
