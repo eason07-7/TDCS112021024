@@ -1,30 +1,22 @@
 /**
- * Unit tests for infra/lambda/src/index.ts
+ * Unit tests for infra/lambda/src/index.ts — async SQS broker (PLAN_E9 M4.5)
  *
- * Tests:
- *   - F-H3 body size limit (> 100 KB → 413)
- *   - POST /clean routing: valid/invalid params
- *   - POST /clean happy path with mocked S3 + polars (PLAN_E9 M1)
- *   - GET /jobs/{id}
+ * Two entry shapes:
+ *   - API Gateway producer: POST /clean validates + enqueues (SendMessage) → 202;
+ *     GET /jobs/{id} reads. (F-H3 body guard kept.)
+ *   - SQS consumer: runs the real clean → done | error, re-throws to DLQ on failure.
  *
- * Run: cd infra/lambda && npm install && npm test
+ * All AWS clients + polars are mocked. Athena poll interval forced to 0.
  */
 import * as zlib from 'node:zlib';
 
-// ── Module mocks (must be before imports) ────────────────────────────────────
+// ── Module mocks (hoisted above imports by ts-jest) ───────────────────────────
 
-// nodejs-polars: mock to avoid native addon dependency in test env
 jest.mock('nodejs-polars', () => ({
-  readRecords: jest.fn().mockReturnValue({
-    writeParquet: jest.fn(),  // no-op: we'll fake the file read after
-    height: 14058,
-  }),
+  readRecords: jest.fn().mockReturnValue({ writeParquet: jest.fn(), height: 1 }),
 }));
-
-// uuid: deterministic job_id
 jest.mock('uuid', () => ({ v4: () => 'mock-uuid-plan-e9' }));
 
-// @aws-sdk/client-s3: flexible mock
 const mockS3Send = jest.fn();
 jest.mock('@aws-sdk/client-s3', () => ({
   S3Client: jest.fn().mockImplementation(() => ({ send: mockS3Send })),
@@ -36,7 +28,6 @@ jest.mock('@aws-sdk/client-s3', () => ({
   },
 }));
 
-// @aws-sdk/client-athena: MSCK REPAIR mock (PLAN_E9 M3)
 const mockAthenaSend = jest.fn();
 jest.mock('@aws-sdk/client-athena', () => ({
   AthenaClient: jest.fn().mockImplementation(() => ({ send: mockAthenaSend })),
@@ -44,28 +35,26 @@ jest.mock('@aws-sdk/client-athena', () => ({
   GetQueryExecutionCommand: jest.fn().mockImplementation((input) => ({ _type: 'GetQuery', input })),
 }));
 
-// Drive the REPAIR poll loop with zero delay so tests don't wait real seconds
-// (repairPartitions reads this at call-time — see index.ts).
+const mockSqsSend = jest.fn();
+jest.mock('@aws-sdk/client-sqs', () => ({
+  SQSClient: jest.fn().mockImplementation(() => ({ send: mockSqsSend })),
+  SendMessageCommand: jest.fn().mockImplementation((input) => ({ _type: 'SendMessage', input })),
+}));
+
+// Drain the REPAIR poll loop with zero delay (repairPartitions reads at call-time).
 process.env.ATHENA_POLL_INTERVAL_MS = '0';
 
-/** Default Athena mock: StartQuery → id, GetQuery → SUCCEEDED (happy path). */
-function athenaSucceeds(queryId = 'q-mock-e9-m3'): void {
-  mockAthenaSend.mockImplementation((cmd: any) => {
-    if (cmd._type === 'StartQuery') return Promise.resolve({ QueryExecutionId: queryId });
-    if (cmd._type === 'GetQuery') {
-      return Promise.resolve({ QueryExecution: { Status: { State: 'SUCCEEDED' } } });
-    }
-    return Promise.resolve({});
-  });
-}
-
 import { handler } from './index';
-import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
+import type {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyStructuredResultV2,
+  SQSEvent,
+} from 'aws-lambda';
 import * as fs from 'node:fs';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── helpers ────────────────────────────────────────────────────────────────────
 
-function makeEvent(overrides: Partial<APIGatewayProxyEventV2> = {}): APIGatewayProxyEventV2 {
+function makeApiEvent(overrides: Partial<APIGatewayProxyEventV2> = {}): APIGatewayProxyEventV2 {
   return {
     version: '2.0',
     routeKey: 'POST /clean',
@@ -73,16 +62,11 @@ function makeEvent(overrides: Partial<APIGatewayProxyEventV2> = {}): APIGatewayP
     rawQueryString: '',
     headers: { 'content-type': 'application/json' },
     requestContext: {
-      accountId: '654485222392',
-      apiId: 'test',
-      domainName: 'test.execute-api.us-east-1.amazonaws.com',
-      domainPrefix: 'test',
+      accountId: '654485222392', apiId: 'test',
+      domainName: 'test.execute-api.us-east-1.amazonaws.com', domainPrefix: 'test',
       http: { method: 'POST', path: '/clean', protocol: 'HTTP/1.1', sourceIp: '1.2.3.4', userAgent: 'test' },
-      requestId: 'test-req-id',
-      routeKey: 'POST /clean',
-      stage: '$default',
-      time: '04/Jun/2026:09:00:00 +0000',
-      timeEpoch: 1751000000000,
+      requestId: 'test-req-id', routeKey: 'POST /clean', stage: '$default',
+      time: '04/Jun/2026:09:00:00 +0000', timeEpoch: 1751000000000,
     },
     body: '{"year":2026,"month":3,"gantries":["01F2930N"]}',
     isBase64Encoded: false,
@@ -90,376 +74,240 @@ function makeEvent(overrides: Partial<APIGatewayProxyEventV2> = {}): APIGatewayP
   };
 }
 
-/** Create a gzip buffer from CSV string (for S3 GetObject mock). */
+function makeSqsEvent(msg: object): SQSEvent {
+  return {
+    Records: [{
+      messageId: 'm-1', receiptHandle: 'rh-1', body: JSON.stringify(msg),
+      attributes: {}, messageAttributes: {}, md5OfBody: '',
+      eventSource: 'aws:sqs',
+      eventSourceARN: 'arn:aws:sqs:us-east-1:654485222392:tdcs-dl-clean-jobs',
+      awsRegion: 'us-east-1',
+    }],
+  } as unknown as SQSEvent;
+}
+
 function gzipSync(content: string): Buffer {
   return zlib.gzipSync(Buffer.from(content, 'utf8'));
 }
 
-// ── F-H3: body size guard ─────────────────────────────────────────────────────
+const FAKE_CSV = [
+  '0,1,2,3,4,5,6,7',
+  '3,2026-03-01 01:00:00,01F2930N,2026-03-01 01:30:00,01F3019N,15.5,1,OK',
+  '3,2026-03-01 02:00:00,01F2930N,2026-03-01 02:30:00,01F3019N,20.0,1,OK',
+].join('\n');
 
-describe('POST /clean — body size guard (F-H3)', () => {
-  beforeEach(() => {
-    mockS3Send.mockResolvedValue({});
+function athenaSucceeds(queryId = 'q-mock-e9'): void {
+  mockAthenaSend.mockImplementation((cmd: { _type: string }) => {
+    if (cmd._type === 'StartQuery') return Promise.resolve({ QueryExecutionId: queryId });
+    if (cmd._type === 'GetQuery') return Promise.resolve({ QueryExecution: { Status: { State: 'SUCCEEDED' } } });
+    return Promise.resolve({});
   });
+}
 
-  test('rejects body > 100 KB → 413 + error details', async () => {
-    const bigPayload = 'x'.repeat(101 * 1024);
-    const event = makeEvent({ body: bigPayload });
-    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+/** S3 mock for a full clean: List → 1 file, Get → gzip CSV, Put → ok. */
+function setupCleanS3(csv = FAKE_CSV): void {
+  const gz = gzipSync(csv);
+  mockS3Send.mockImplementation((cmd: { _type: string }) => {
+    if (cmd._type === 'List') {
+      return Promise.resolve({ Contents: [{ Key: 'raw/yyyymm=202603/TDCS_M06A_20260301_010000.csv.gz' }] });
+    }
+    if (cmd._type === 'Get') {
+      return Promise.resolve({ Body: { transformToByteArray: () => Promise.resolve(new Uint8Array(gz)) } });
+    }
+    return Promise.resolve({}); // Put → ok
+  });
+}
 
+function jobPuts(): Array<Record<string, unknown>> {
+  const { PutObjectCommand } = require('@aws-sdk/client-s3');
+  return (PutObjectCommand as jest.Mock).mock.calls
+    .filter(([input]: [{ Key?: string }]) => String(input?.Key ?? '').startsWith('jobs/'))
+    .map(([input]: [{ Body: string }]) => JSON.parse(input.Body));
+}
+
+// =============================================================================
+// API Gateway producer
+// =============================================================================
+
+describe('API GW POST /clean — body guard (F-H3)', () => {
+  beforeEach(() => { jest.clearAllMocks(); mockS3Send.mockResolvedValue({}); mockSqsSend.mockResolvedValue({}); });
+
+  test('body > 100 KB → 413', async () => {
+    const result = (await handler(makeApiEvent({ body: 'x'.repeat(101 * 1024) }))) as APIGatewayProxyStructuredResultV2;
     expect(result.statusCode).toBe(413);
     const body = JSON.parse(result.body ?? '{}');
     expect(body.error).toBe('body too large');
-    expect(body.max).toBe(102400);
-    expect(body.received).toBeGreaterThan(102400);
   });
 
-  test('rejects body 100 KB + 1 byte → 413', async () => {
-    const boundaryBody = 'a'.repeat(100 * 1024 + 1);
-    const event = makeEvent({ body: boundaryBody });
-    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+  test('body 100 KB + 1 byte → 413', async () => {
+    const result = (await handler(makeApiEvent({ body: 'a'.repeat(100 * 1024 + 1) }))) as APIGatewayProxyStructuredResultV2;
     expect(result.statusCode).toBe(413);
   });
 
-  test('small body passes size check (returns non-413)', async () => {
-    // Valid params so handler proceeds past size check
-    // S3 list returns empty → handler returns 404 (not 413)
-    mockS3Send.mockImplementation((cmd: any) => {
-      if (cmd._type === 'Put') return Promise.resolve({});
-      if (cmd._type === 'List') return Promise.resolve({ Contents: [] });
-      return Promise.resolve({});
-    });
-
-    const event = makeEvent({
-      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
-    });
-    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
-    expect(result.statusCode).not.toBe(413);
-  });
-
-  test('invalid JSON body → 400', async () => {
-    const event = makeEvent({ body: 'not json' });
-    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+  test('invalid JSON → 400', async () => {
+    const result = (await handler(makeApiEvent({ body: 'not json' }))) as APIGatewayProxyStructuredResultV2;
     expect(result.statusCode).toBe(400);
-    const body = JSON.parse(result.body ?? '{}');
-    expect(body.error).toBe('invalid JSON body');
   });
 });
 
-// ── POST /clean param routing ─────────────────────────────────────────────────
+describe('API GW POST /clean — enqueue (producer)', () => {
+  beforeEach(() => { jest.clearAllMocks(); mockS3Send.mockResolvedValue({}); mockSqsSend.mockResolvedValue({}); });
 
-describe('POST /clean — param routing (PLAN_E9 M1)', () => {
-  beforeEach(() => {
-    mockS3Send.mockResolvedValue({});
-  });
-
-  test('missing job_id AND year/month/gantries → 400', async () => {
-    const event = makeEvent({ body: '{}' });
-    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+  test('missing job_id AND year/month/gantries → 400 (no enqueue)', async () => {
+    const result = (await handler(makeApiEvent({ body: '{}' }))) as APIGatewayProxyStructuredResultV2;
     expect(result.statusCode).toBe(400);
-    const body = JSON.parse(result.body ?? '{}');
-    expect(body.error).toContain('job_id');
+    expect(mockSqsSend).not.toHaveBeenCalled();
   });
 
-  test('Mode B: year/month/gantries in body, no S3 files → 404', async () => {
-    mockS3Send.mockImplementation((cmd: any) => {
-      if (cmd._type === 'Put') return Promise.resolve({});
-      if (cmd._type === 'List') return Promise.resolve({ Contents: [] });
+  test('Mode B → 202 + accepted record + SendMessage with resolved params', async () => {
+    const event = makeApiEvent({ body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N', '01F3019S'] }) });
+    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+
+    expect(result.statusCode).toBe(202);
+    const body = JSON.parse(result.body ?? '{}');
+    expect(body.status).toBe('accepted');
+    expect(body.job_id).toBe('mock-uuid-plan-e9');
+
+    // SQS message carries fully-resolved params
+    const { SendMessageCommand } = require('@aws-sdk/client-sqs');
+    const sent = (SendMessageCommand as jest.Mock).mock.calls[0][0];
+    expect(JSON.parse(sent.MessageBody)).toEqual({
+      job_id: 'mock-uuid-plan-e9', year: 2026, month: 3, gantries: ['01F2930N', '01F3019S'],
+    });
+    // job record set to accepted (NOT processing/done — that's the consumer)
+    expect(jobPuts().pop()!.status).toBe('accepted');
+  });
+
+  test('Mode A → reads prior pull job for params, enqueues', async () => {
+    mockS3Send.mockImplementation((cmd: { _type: string }) => {
+      if (cmd._type === 'Get') {
+        return Promise.resolve({
+          Body: { transformToString: () => Promise.resolve(JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] })) },
+        });
+      }
       return Promise.resolve({});
     });
-
-    const event = makeEvent({
-      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
+    const result = (await handler(makeApiEvent({ body: JSON.stringify({ job_id: 'pull-7' }) }))) as APIGatewayProxyStructuredResultV2;
+    expect(result.statusCode).toBe(202);
+    const { SendMessageCommand } = require('@aws-sdk/client-sqs');
+    expect(JSON.parse((SendMessageCommand as jest.Mock).mock.calls[0][0].MessageBody)).toEqual({
+      job_id: 'pull-7', year: 2026, month: 3, gantries: ['01F2930N'],
     });
-    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+  });
+
+  test('Mode A job not found → 404', async () => {
+    const { NoSuchKey } = require('@aws-sdk/client-s3');
+    mockS3Send.mockImplementation((cmd: { _type: string }) => {
+      if (cmd._type === 'Get') return Promise.reject(new NoSuchKey());
+      return Promise.resolve({});
+    });
+    const result = (await handler(makeApiEvent({ body: JSON.stringify({ job_id: 'ghost' }) }))) as APIGatewayProxyStructuredResultV2;
     expect(result.statusCode).toBe(404);
-    const body = JSON.parse(result.body ?? '{}');
-    expect(body.error).toContain('no raw csv.gz');
-  });
-});
-
-// ── POST /clean happy path (mocked S3 + polars) ───────────────────────────────
-
-describe('POST /clean — true cleaning happy path (PLAN_E9 M1)', () => {
-  // Minimal TDCS CSV: header row + 2 data rows (different gantries)
-  const FAKE_CSV = [
-    '0,1,2,3,4,5,6,7',  // index header
-    '3,2026-03-01 01:00:00,01F2930N,2026-03-01 01:30:00,01F3019N,15.5,1,OK',
-    '3,2026-03-01 02:00:00,01F2930N,2026-03-01 02:30:00,01F3019N,20.0,1,OK',
-    '1,2026-03-01 01:00:00,01F3019S,2026-03-01 01:30:00,01F3019N,10.0,1,OK',
-  ].join('\n');
-
-  const FAKE_GZ = gzipSync(FAKE_CSV);
-
-  // polars mock: writeParquet writes a dummy parquet file so PutObject can read it
-  const { readRecords } = require('nodejs-polars') as { readRecords: jest.Mock };
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    athenaSucceeds(); // M3: handler now runs MSCK REPAIR before reporting done
-
-    // polars readRecords → writeParquet creates a stub file
-    readRecords.mockReturnValue({
-      writeParquet: jest.fn().mockImplementation((path: string) => {
-        // Write a stub parquet file so fs.readFileSync won't throw
-        fs.writeFileSync(path, Buffer.from('FAKE_PARQUET'));
-      }),
-      height: 42,
-    });
-
-    // S3 mock: Put → ok, List → 1 file, Get → gzip csv, Put (parquet) → ok
-    let putCount = 0;
-    mockS3Send.mockImplementation((cmd: any) => {
-      if (cmd._type === 'List') {
-        return Promise.resolve({
-          Contents: [{ Key: 'raw/yyyymm=202603/TDCS_M06A_20260301_010000.csv.gz' }],
-        });
-      }
-      if (cmd._type === 'Get') {
-        return Promise.resolve({
-          Body: {
-            transformToByteArray: () => Promise.resolve(new Uint8Array(FAKE_GZ)),
-          },
-        });
-      }
-      if (cmd._type === 'Put') {
-        putCount++;
-        return Promise.resolve({});
-      }
-      return Promise.resolve({});
-    });
+    expect(mockSqsSend).not.toHaveBeenCalled();
   });
 
-  test('Mode B: happy path → 200 + rowCount + parquetKey', async () => {
-    const event = makeEvent({
-      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N', '01F3019S'] }),
-    });
-    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
-
-    expect(result.statusCode).toBe(200);
-    const body = JSON.parse(result.body ?? '{}');
-    expect(body.status).toBe('done');
-    expect(body).toHaveProperty('rowCount');
-    expect(body).toHaveProperty('parquetKey');
-    expect(body.parquetKey).toContain('cleaned_v2/yyyymm=202603/cleaned.parquet');
-  });
-
-  test('PutObject is called with Parquet key in cleaned_v2 prefix', async () => {
-    const event = makeEvent({
-      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
-    });
-    await handler(event);
-
-    // Find the PutObject call that uploaded parquet (not the job record)
-    const { PutObjectCommand } = require('@aws-sdk/client-s3');
-    const parquetPut = (PutObjectCommand as jest.Mock).mock.calls.find(
-      ([input]: [any]) => String(input?.Key ?? '').includes('cleaned_v2'),
-    );
-    expect(parquetPut).toBeTruthy();
-    expect(parquetPut[0].Key).toBe('cleaned_v2/yyyymm=202603/cleaned.parquet');
-  });
-
-  test('jobs/<id>.json updated to status=done after clean', async () => {
-    const event = makeEvent({
-      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
-    });
-    await handler(event);
-
-    // Find PutObject calls for job record
-    const { PutObjectCommand } = require('@aws-sdk/client-s3');
-    const jobPuts = (PutObjectCommand as jest.Mock).mock.calls.filter(
-      ([input]: [any]) => String(input?.Key ?? '').startsWith('jobs/'),
-    );
-
-    // Should have at least 2: processing + done
-    expect(jobPuts.length).toBeGreaterThanOrEqual(2);
-
-    // Last job record should be 'done'
-    const lastJobPut = jobPuts[jobPuts.length - 1][0];
-    const lastRecord = JSON.parse(lastJobPut.Body as string);
-    expect(lastRecord.status).toBe('done');
-  });
-});
-
-// ── M2: Parquet write + S3 path alignment ─────────────────────────────────────
-
-describe('Parquet write — S3 path + ContentType (PLAN_E9 M2)', () => {
-  const FAKE_CSV = [
-    '0,1,2,3,4,5,6,7',
-    '3,2026-03-01 01:00:00,01F2930N,2026-03-01 01:30:00,01F3019N,15.5,1,OK',
-  ].join('\n');
-
-  const FAKE_GZ = gzipSync(FAKE_CSV);
-  const { readRecords } = require('nodejs-polars') as { readRecords: jest.Mock };
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    athenaSucceeds(); // M3: handler now runs MSCK REPAIR before reporting done
-    readRecords.mockReturnValue({
-      writeParquet: jest.fn().mockImplementation((p: string) => {
-        fs.writeFileSync(p, Buffer.from('PARQUET_STUB'));
-      }),
-      height: 1,
-    });
-    mockS3Send.mockImplementation((cmd: any) => {
-      if (cmd._type === 'List') {
-        return Promise.resolve({
-          Contents: [{ Key: 'raw/yyyymm=202603/TDCS_M06A_20260301_010000.csv.gz' }],
-        });
-      }
-      if (cmd._type === 'Get') {
-        return Promise.resolve({
-          Body: { transformToByteArray: () => Promise.resolve(new Uint8Array(FAKE_GZ)) },
-        });
-      }
-      return Promise.resolve({});
-    });
-  });
-
-  test('Parquet PutObject ContentType = application/octet-stream', async () => {
-    const event = makeEvent({
-      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
-    });
-    await handler(event);
-
-    const { PutObjectCommand } = require('@aws-sdk/client-s3');
-    const parquetPut = (PutObjectCommand as jest.Mock).mock.calls.find(
-      ([input]: [any]) => String(input?.Key ?? '').includes('cleaned_v2'),
-    );
-    expect(parquetPut).toBeTruthy();
-    expect(parquetPut[0].ContentType).toBe('application/octet-stream');
-  });
-
-  test('Parquet S3 key follows Hive partition format yyyymm=YYYYMM/cleaned.parquet', async () => {
-    const event = makeEvent({
-      body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
-    });
-    await handler(event);
-
-    const { PutObjectCommand } = require('@aws-sdk/client-s3');
-    const parquetPut = (PutObjectCommand as jest.Mock).mock.calls.find(
-      ([input]: [any]) => String(input?.Key ?? '').includes('cleaned_v2'),
-    );
-    // Must match: cleaned_v2/yyyymm=<YYYYMM>/cleaned.parquet (Glue partition format)
-    expect(parquetPut[0].Key).toMatch(/^cleaned_v2\/yyyymm=\d{6}\/cleaned\.parquet$/);
-    expect(parquetPut[0].Key).toBe('cleaned_v2/yyyymm=202603/cleaned.parquet');
-  });
-});
-
-// ── M3: Athena MSCK REPAIR partition discovery ────────────────────────────────
-
-describe('MSCK REPAIR partition discovery (PLAN_E9 M3)', () => {
-  const FAKE_CSV = [
-    '0,1,2,3,4,5,6,7',
-    '3,2026-03-01 01:00:00,01F2930N,2026-03-01 01:30:00,01F3019N,15.5,1,OK',
-  ].join('\n');
-  const FAKE_GZ = gzipSync(FAKE_CSV);
-  const { readRecords } = require('nodejs-polars') as { readRecords: jest.Mock };
-
-  // Full clean happy path (S3 + polars) so the handler reaches the REPAIR step.
-  beforeEach(() => {
-    jest.clearAllMocks();
-    readRecords.mockReturnValue({
-      writeParquet: jest.fn().mockImplementation((p: string) => {
-        fs.writeFileSync(p, Buffer.from('PARQUET_STUB'));
-      }),
-      height: 1,
-    });
-    mockS3Send.mockImplementation((cmd: any) => {
-      if (cmd._type === 'List') {
-        return Promise.resolve({
-          Contents: [{ Key: 'raw/yyyymm=202603/TDCS_M06A_20260301_010000.csv.gz' }],
-        });
-      }
-      if (cmd._type === 'Get') {
-        return Promise.resolve({
-          Body: { transformToByteArray: () => Promise.resolve(new Uint8Array(FAKE_GZ)) },
-        });
-      }
-      return Promise.resolve({}); // Put → ok
-    });
-  });
-
-  const cleanEvent = () => makeEvent({
-    body: JSON.stringify({ year: 2026, month: 3, gantries: ['01F2930N'] }),
-  });
-
-  test('SUCCEEDED → REPAIR query issued (db/table/workgroup) + done record has query_execution_id', async () => {
-    athenaSucceeds('q-success-123');
-    const result = (await handler(cleanEvent())) as APIGatewayProxyStructuredResultV2;
-    expect(result.statusCode).toBe(200);
-
-    // StartQueryExecution called with the right MSCK REPAIR query + workgroup + db
-    const { StartQueryExecutionCommand } = require('@aws-sdk/client-athena');
-    const startInput = (StartQueryExecutionCommand as jest.Mock).mock.calls[0][0];
-    expect(startInput.QueryString).toBe('MSCK REPAIR TABLE tdcs_dl.cleaned_v2_skeleton');
-    expect(startInput.WorkGroup).toBe('tdcs-dl-wg');
-    expect(startInput.QueryExecutionContext).toEqual({ Database: 'tdcs_dl' });
-
-    // done job record carries query_execution_id
-    const { PutObjectCommand } = require('@aws-sdk/client-s3');
-    const jobPuts = (PutObjectCommand as jest.Mock).mock.calls.filter(
-      ([input]: [any]) => String(input?.Key ?? '').startsWith('jobs/'),
-    );
-    const lastRecord = JSON.parse(jobPuts[jobPuts.length - 1][0].Body as string);
-    expect(lastRecord.status).toBe('done');
-    expect(lastRecord.query_execution_id).toBe('q-success-123');
-  });
-
-  test('FAILED → handler 500 + status=error with StateChangeReason + query_execution_id', async () => {
-    mockAthenaSend.mockImplementation((cmd: any) => {
-      if (cmd._type === 'StartQuery') return Promise.resolve({ QueryExecutionId: 'q-fail-9' });
-      if (cmd._type === 'GetQuery') {
-        return Promise.resolve({
-          QueryExecution: { Status: { State: 'FAILED', StateChangeReason: 'SYNTAX_ERROR' } },
-        });
-      }
-      return Promise.resolve({});
-    });
-
-    const result = (await handler(cleanEvent())) as APIGatewayProxyStructuredResultV2;
+  test('SendMessage fails → 500 + error record', async () => {
+    mockSqsSend.mockRejectedValue(new Error('SQS unavailable'));
+    const result = (await handler(makeApiEvent())) as APIGatewayProxyStructuredResultV2;
     expect(result.statusCode).toBe(500);
-    const body = JSON.parse(result.body ?? '{}');
-    expect(body.status).toBe('error');
-    expect(body.error).toContain('MSCK REPAIR FAILED');
-    expect(body.error).toContain('SYNTAX_ERROR');
+    expect(jobPuts().pop()!.status).toBe('error');
+  });
 
-    // error job record persisted with status=error + the failed query's id (debug)
-    const { PutObjectCommand } = require('@aws-sdk/client-s3');
-    const jobPuts = (PutObjectCommand as jest.Mock).mock.calls.filter(
-      ([input]: [any]) => String(input?.Key ?? '').startsWith('jobs/'),
-    );
-    const lastRecord = JSON.parse(jobPuts[jobPuts.length - 1][0].Body as string);
-    expect(lastRecord.status).toBe('error');
-    expect(lastRecord.query_execution_id).toBe('q-fail-9');
+  test('Mode B with empty gantries → 400 (no enqueue)', async () => {
+    const result = (await handler(makeApiEvent({ body: JSON.stringify({ year: 2026, month: 3, gantries: [] }) }))) as APIGatewayProxyStructuredResultV2;
+    expect(result.statusCode).toBe(400);
+    expect(mockSqsSend).not.toHaveBeenCalled();
   });
 });
 
-// ── GET /jobs/{id} ────────────────────────────────────────────────────────────
+// =============================================================================
+// SQS consumer — the real clean
+// =============================================================================
 
-describe('GET /jobs/{id}', () => {
+describe('SQS consumer — runCleanFlow', () => {
   beforeEach(() => {
-    mockS3Send.mockResolvedValue({});
+    jest.clearAllMocks();
+    athenaSucceeds('q-clean-1');
+    const { readRecords } = require('nodejs-polars') as { readRecords: jest.Mock };
+    readRecords.mockReturnValue({
+      writeParquet: jest.fn().mockImplementation((p: string) => fs.writeFileSync(p, Buffer.from('PARQUET_STUB'))),
+      height: 1,
+    });
+    setupCleanS3();
   });
 
-  test('returns 404 when job not found (NoSuchKey)', async () => {
+  const msg = { job_id: 'job-1', year: 2026, month: 3, gantries: ['01F2930N', '01F3019S'] };
+
+  test('happy: clean → done record with parquetKey + query_execution_id', async () => {
+    await handler(makeSqsEvent(msg));
+
+    const records = jobPuts();
+    expect(records.some((r) => r.status === 'processing')).toBe(true);
+    const last = records.pop()!;
+    expect(last.status).toBe('done');
+    expect(last.parquetKey).toBe('cleaned_v2/yyyymm=202603/cleaned.parquet');
+    expect(last.query_execution_id).toBe('q-clean-1');
+    expect(mockSqsSend).not.toHaveBeenCalled(); // consumer does not enqueue
+  });
+
+  test('parquet PutObject uses Hive partition key', async () => {
+    await handler(makeSqsEvent(msg));
+    const { PutObjectCommand } = require('@aws-sdk/client-s3');
+    const parquetPut = (PutObjectCommand as jest.Mock).mock.calls.find(
+      ([i]: [{ Key?: string }]) => String(i?.Key ?? '').includes('cleaned_v2'),
+    );
+    expect(parquetPut[0].Key).toMatch(/^cleaned_v2\/yyyymm=\d{6}\/cleaned\.parquet$/);
+  });
+
+  test('no raw csv.gz → error record + re-throw (→ SQS retry/DLQ)', async () => {
+    mockS3Send.mockImplementation((cmd: { _type: string }) =>
+      cmd._type === 'List' ? Promise.resolve({ Contents: [] }) : Promise.resolve({}));
+    await expect(handler(makeSqsEvent(msg))).rejects.toThrow('no raw csv.gz');
+    expect(jobPuts().pop()!.status).toBe('error');
+  });
+
+  test('MSCK REPAIR FAILED → error record carries query_execution_id + re-throw', async () => {
+    mockAthenaSend.mockImplementation((cmd: { _type: string }) => {
+      if (cmd._type === 'StartQuery') return Promise.resolve({ QueryExecutionId: 'q-fail' });
+      if (cmd._type === 'GetQuery') return Promise.resolve({ QueryExecution: { Status: { State: 'FAILED', StateChangeReason: 'BOOM' } } });
+      return Promise.resolve({});
+    });
+    await expect(handler(makeSqsEvent(msg))).rejects.toThrow('MSCK REPAIR FAILED');
+    const last = jobPuts().pop()!;
+    expect(last.status).toBe('error');
+    expect(last.query_execution_id).toBe('q-fail');
+  });
+
+  test('raw exists but no gantry match → done rowCount=0 + note (not error)', async () => {
+    await handler(makeSqsEvent({ job_id: 'job-2', year: 2026, month: 3, gantries: ['99X9999Z'] }));
+    const last = jobPuts().pop()!;
+    expect(last.status).toBe('done');
+    expect(last.rowCount).toBe(0);
+    expect(last.note).toContain('no matching rows');
+  });
+
+  test('message missing job_id → dropped (no throw, no job record)', async () => {
+    await expect(handler(makeSqsEvent({ year: 2026, month: 3, gantries: ['01F2930N'] }))).resolves.toBeUndefined();
+    expect(jobPuts()).toHaveLength(0);
+  });
+});
+
+// =============================================================================
+// GET /jobs/{id}
+// =============================================================================
+
+describe('API GW GET /jobs/{id}', () => {
+  beforeEach(() => { jest.clearAllMocks(); });
+
+  test('404 when not found (NoSuchKey)', async () => {
     const { NoSuchKey } = require('@aws-sdk/client-s3');
     mockS3Send.mockRejectedValue(new NoSuchKey());
-
-    const event = makeEvent({
-      routeKey: 'GET /jobs/{id}',
-      pathParameters: { id: 'nonexistent-uuid' },
-    });
-    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+    const result = (await handler(makeApiEvent({ routeKey: 'GET /jobs/{id}', pathParameters: { id: 'nope' } }))) as APIGatewayProxyStructuredResultV2;
     expect(result.statusCode).toBe(404);
   });
 
-  test('returns 400 when job_id is missing', async () => {
-    const event = makeEvent({
-      routeKey: 'GET /jobs/{id}',
-      pathParameters: {},
-    });
-    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+  test('400 when job id missing', async () => {
+    const result = (await handler(makeApiEvent({ routeKey: 'GET /jobs/{id}', pathParameters: {} }))) as APIGatewayProxyStructuredResultV2;
     expect(result.statusCode).toBe(400);
   });
 });

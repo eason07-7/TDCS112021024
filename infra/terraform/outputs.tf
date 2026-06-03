@@ -36,3 +36,14 @@ output "athena_workgroup" {
   description = "Athena workgroup 名稱"
   value       = aws_athena_workgroup.tdcs_dl_wg.name
 }
+
+# M4.5 — async clean broker
+output "sqs_clean_jobs_url" {
+  description = "SQS 工作佇列 URL（API GW handler SendMessage 目標）"
+  value       = aws_sqs_queue.clean_jobs.url
+}
+
+output "sqs_clean_jobs_dlq_url" {
+  description = "SQS 死信佇列 URL（失敗 maxReceiveCount 後的訊息）"
+  value       = aws_sqs_queue.clean_jobs_dlq.url
+}

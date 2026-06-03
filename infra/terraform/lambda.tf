@@ -21,6 +21,8 @@ resource "aws_lambda_function" "cleaner" {
   environment {
     variables = {
       BUCKET_NAME = var.bucket_name
+      # M4.5: API GW handler enqueues clean jobs here (async broker).
+      CLEAN_QUEUE_URL = aws_sqs_queue.clean_jobs.url
     }
   }
 
