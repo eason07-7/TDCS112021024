@@ -1,7 +1,7 @@
 # Workflow Index — mcp_workspace
 
-> 自動產生於 2026-06-04 02:09
-> 當前活躍 1 個 / 已封存 6 個
+> 自動產生於 2026-06-04 04:13
+> 當前活躍 1 個 / 已封存 7 個
 > 重新產生：在專案根目錄跑 `python D:\p\workflow\scripts\index.py`
 > **勿手改本檔**——要新內容請跑上面那行 script
 
@@ -11,7 +11,7 @@
 
 | # | 紀錄 | PLAN | Phase | PLAN 內容 | 進度 / 末事件 | 事件數 |
 |---|---|---|---|---|---|---|
-| 8 | [紀錄8](實驗紀錄8.md) | [E8](PLAN_E8.md) | — | — | _(此行於封存前由 Lead 填、archive.py 會抓進 INDEX.md)_ | 0 |
+| 9 | [紀錄9](實驗紀錄9.md) | — | — | — | _(待 Lead 在 PLAN 開頭加 `> **關鍵成果**：xxx`)_ | 0 |
 
 ---
 
@@ -25,6 +25,7 @@
 | 5 | [紀錄5](logs/實驗紀錄5.md) | [E5](logs/PLAN_E5_done.md) | — | — | 6/2 完成 mcp_workspace v2 全鎖板 — 從「MCP server + RAG」pivot 到「CLI + AWS backend」；7 跳板實驗對照 4 指標、Winner = E6 純 client… | 8 | 2026-05-28 ~ 2026-06-02 |
 | 6 | [紀錄6](logs/實驗紀錄6.md) | [E6](logs/PLAN_E6_done.md) | — | — | CLI v2 骨架交付：tdcs_clean TS 翻譯通過 baseline 14,058 行 md5=0 對齊、gantries_v4_1.json 339 個門架 ingest、endpoint 三層 priori… | 9 | 2026-06-02 |
 | 7 | [紀錄7](logs/實驗紀錄7.md) | [E7](logs/PLAN_E7_done.md) | — | — | PLAN_E7 AWS infra 完整交付：Terraform 一鍵建 15 resource（S3 + Lambda Container + API GW + Glue DC + Athena WG）、端到端 smo… | 10 | 2026-06-02 ~ 2026-06-04 |
+| 8 | [紀錄8](logs/實驗紀錄8.md) | [E8](logs/PLAN_E8_done.md) | — | — | PLAN_E8 download chain 端到端交付：tdcs-dl pull + status + wizard 整合、麻豆段 22 GB 真實跑通（744 檔 / 21.79 GiB / 43 min / 6-s… | 6 | 2026-06-04 |
 
 ---
 

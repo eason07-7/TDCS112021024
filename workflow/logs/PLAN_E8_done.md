@@ -1,7 +1,7 @@
 # PLAN_E8 — CLI ↔ AWS download chain（pull subcommand + S3 raw upload + job status）
 
 > **對應紀錄**：`workflow/實驗紀錄8.md`（PLAN_E8 啟動時建、舊 `實驗紀錄7.md` 已封存到 `logs/`）
-> **關鍵成果**：_(此行於封存前由 Lead 填、archive.py 會抓進 INDEX.md)_
+> **關鍵成果**：PLAN_E8 download chain 端到端交付：tdcs-dl pull + status + wizard 整合、麻豆段 22 GB 真實跑通（744 檔 / 21.79 GiB / 43 min / 6-state JobRecord）、cli/ 93 test 全綠（46→93）
 
 ---
 
