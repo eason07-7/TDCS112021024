@@ -16,8 +16,12 @@ export interface WizardAnswers {
 
 export type StepId = 'data' | 'time' | 'gantry' | 'output' | 'confirm';
 
-/** Post-confirm execution state (orthogonal to wizard step navigation). */
-export type RunPhase = 'idle' | 'running' | 'done' | 'error';
+/**
+ * Post-confirm execution state (orthogonal to wizard step navigation).
+ *   running  = stage 1, downloading raw → S3 (runPull)
+ *   cleaning = stage 2, AWS-side clean in progress (runClean, SQS consumer)  [PLAN_E9 M5]
+ */
+export type RunPhase = 'idle' | 'running' | 'cleaning' | 'done' | 'error';
 
 export const STEPS: StepId[] = ['data', 'time', 'gantry', 'output', 'confirm'];
 

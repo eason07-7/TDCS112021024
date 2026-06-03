@@ -7,6 +7,7 @@ import GantryStep from './steps/Gantry';
 import OutputStep from './steps/Output';
 import ConfirmStep from './steps/Confirm';
 import RunningStep from './steps/Running';
+import type { JobRecord } from '../lib/job-metadata';
 
 // ASCII logo pre-generated at dev time (figlet Banner3 font) — avoids runtime font file I/O
 const LOGO =
@@ -23,6 +24,7 @@ export default function App() {
   const [state, setState] = useState<WizardState>(initialState());
   const [runPhase, setRunPhase] = useState<RunPhase>('idle');
   const [jobId, setJobId] = useState('');
+  const [cleanResult, setCleanResult] = useState<JobRecord | null>(null);
   const [runError, setRunError] = useState('');
 
   const stepIdx = STEPS.indexOf(state.currentStep);
@@ -39,8 +41,9 @@ export default function App() {
     setRunPhase('running');
   };
 
-  const handleRunDone = (id: string) => {
+  const handleRunDone = (id: string, record: JobRecord) => {
     setJobId(id);
+    setCleanResult(record);
     setRunPhase('done');
   };
 
@@ -49,12 +52,13 @@ export default function App() {
     setRunPhase('error');
   };
 
-  // ── Post-confirm: running / done / error views ─────────────────────────
-
-  if (runPhase === 'running') {
+  // ── Post-confirm: running / cleaning / done / error views ──────────────
+  // RunningStep drives both stages (download → clean) and reports phase up via
+  // onPhase, so it stays mounted for 'running' AND 'cleaning'.
+  if (runPhase === 'running' || runPhase === 'cleaning') {
     const { answers } = state;
-    // Parse START month of selected time range (PLAN_E8 M5 scope: single month)
-    // Multi-month loop is PLAN_E9 gate (F-H1) — not in this scope.
+    // Parse START month of selected time range (single month; multi-month is
+    // the逐月 invoke concern, F-H1 — not this scope).
     const timeStart = answers.timeRange?.start ?? '202603';
     const year  = parseInt(timeStart.slice(0, 4), 10);
     const month = parseInt(timeStart.slice(4, 6), 10);
@@ -67,6 +71,7 @@ export default function App() {
           year={year}
           month={month}
           gantries={gantries}
+          onPhase={setRunPhase}
           onDone={handleRunDone}
           onError={handleRunError}
         />
@@ -77,11 +82,27 @@ export default function App() {
   if (runPhase === 'done') {
     return (
       <Box flexDirection="column" marginTop={1}>
-        <Text color="green" bold>✓ 完成！</Text>
+        <Text color="green" bold>✓ 完成！下載 + 清洗兩段都成功</Text>
         <Box marginTop={1}>
           <Text dimColor>job_id : </Text>
           <Text bold>{jobId}</Text>
         </Box>
+        <Box>
+          <Text dimColor>rows   : </Text>
+          <Text bold>{cleanResult?.rowCount ?? 0}</Text>
+        </Box>
+        {cleanResult?.parquetKey && (
+          <Box>
+            <Text dimColor>parquet: </Text>
+            <Text color="cyan">{cleanResult.parquetKey}</Text>
+          </Box>
+        )}
+        {cleanResult?.note && (
+          <Box>
+            <Text dimColor>note   : </Text>
+            <Text>{cleanResult.note}</Text>
+          </Box>
+        )}
         <Box>
           <Text dimColor>查詢：  </Text>
           <Text color="cyan">tdcs-dl status {jobId}</Text>
