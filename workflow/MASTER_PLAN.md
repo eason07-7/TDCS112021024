@@ -411,6 +411,7 @@ mcp_workspace/
 | **Lead 跨工作區污染**（已實際發生 2 次：5/28 demo 提案、6/2 brief「嚴格穿越篩」措辭）| Lead 每次提案前必須先讀本工作區 CLAUDE.md + 影片摘要、確認範疇對齊；事件 #4 + #5 紀錄 root cause；本檔 §0 新「demo 主角」+「期中專題比較」欄釘住「不污染 ai_workspace」；下個 PLAN 啟動時 Lead 主動 review 此風險 |
 | **Lead 驗收抽樣覆蓋率不足**（FR113/143 漏、F-C1 spec drift 都是 Lead 抽樣沒抓到）| 引入 `opus_worker` 作獨立階段審查（PLAN_E6 已執行、見事件 #5、findings 1 Critical + 3 High + 5 Medium）；未來每 PLAN 收尾前派 opus 審一輪、不依賴 Lead 抽樣 |
 | **Glue ETL 不採用 vs 規則 R11/R13 計分項張力**（緩解未驗證）| brief_cleaning_arch §3 已寫「為什麼選 Lambda 不選 Glue ETL」工程選擇 narrative、Glue Data Catalog 仍用（metadata service）≠ Glue ETL（Spark batch、不用）；風險點 = 規則對「Cloud9 + Glue ETL」字面是否排他、緩解 = narrative + 報告 §7 期中比較段明示工程合理性選擇；如評分嚴格按字面、Volume 那 10% 有 partial loss 風險、約 -2~5% 影響 |
+| **並行派工共用 working tree 的 git pull --rebase 假設不成立**（已實證 2026-06-04 PLAN_E9 gate 批 A+B）| user 兩 worker 在同筆電 mcp_workspace dir 並行跑、Lead 預設「commit 前 pull --rebase」hint 在 dirty tree 直接被拒 + selective commit 拆不開同檔（README 兩 worker 不同段）→ 兩 worker 都按紅線 STOP 等 Lead 整合。**未來並行派工 3 個策略選一**：(A) user 操作 `git worktree add` 給每 worker 獨立 working tree、各自 commit + push 走 PR；(B) strict serial（一 worker 完再下一個、慢但無衝突）；(C) Lead 整合 commit（小批 ≤ 2 worker 適用、Lead bottleneck 不會大、本批走的）。事件 #3 詳述完整 root cause + Lead 整合流程 |
 
 ---
 
