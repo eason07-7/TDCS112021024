@@ -1,7 +1,7 @@
 # PLAN_E7 — AWS infra setup（API GW + Lambda + S3 + Athena + Glue Data Catalog）
 
 > **對應紀錄**：`workflow/實驗紀錄7.md`
-> **關鍵成果**：_(此行於封存前由 Lead 填、archive.py 會抓進 INDEX.md)_
+> **關鍵成果**：PLAN_E7 AWS infra 完整交付：Terraform 一鍵建 15 resource（S3 + Lambda Container + API GW + Glue DC + Athena WG）、端到端 smoke test 三段全 PASS、CLI 接 production API、46/46 test 仍綠
 
 ---
 
