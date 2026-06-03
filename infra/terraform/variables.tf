@@ -38,3 +38,9 @@ variable "budget_alert_email" {
   type        = string
   default     = ""
 }
+
+variable "enable_budgets" {
+  description = "是否建立 aws_budgets_budget resource。Learner Lab voclabs role 無 budgets:ModifyBudget 權限、Lab 部署必須 false（CloudWatch alarm 仍會建、F-H3 abuse guard 有 fallback）。production AWS 部署改 true"
+  type        = bool
+  default     = false
+}

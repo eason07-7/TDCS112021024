@@ -23,6 +23,12 @@
 # The `aws` provider here already points to us-east-1 (MASTER_PLAN §0 lock).
 
 resource "aws_budgets_budget" "lab_cost_guard" {
+  # PLAN_E9 M6 實證 2026-06-04：Learner Lab voclabs role 無 budgets:ModifyBudget 權限、
+  # apply 噴 AccessDeniedException。預設 count=0 跳過此 resource、production AWS 部署
+  # 改 var.enable_budgets = true 啟用。CloudWatch alarm（下方 #2）是 F-H3 fallback、
+  # Lab 環境仍會建、abuse guard 達成。
+  count = var.enable_budgets ? 1 : 0
+
   name         = "tdcs-dl-lab-guard"
   budget_type  = "COST"
   limit_amount = "5"
