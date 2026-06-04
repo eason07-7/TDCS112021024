@@ -1,7 +1,7 @@
 # PLAN_E9 — CLI ↔ AWS clean chain（Lambda polars 清洗 + Parquet + 4 H gate 收尾）
 
 > **對應紀錄**：`workflow/實驗紀錄9.md`
-> **關鍵成果**：_(此行於封存前由 Lead 填、archive.py 會抓進 INDEX.md)_
+> **關鍵成果**：PLAN_E9 端到端清洗鏈交付：Lambda polars + Parquet + Glue + MSCK REPAIR + SQS broker async（M4.5 工程設計）、22 GB raw → 14116 rows cleaned、structural 三證 PASS、AWS production 20 resources、cli 108 + lambda 25 = 133 test 全綠
 
 ---
 

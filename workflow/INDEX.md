@@ -1,7 +1,7 @@
 # Workflow Index — mcp_workspace
 
-> 自動產生於 2026-06-04 04:13
-> 當前活躍 1 個 / 已封存 7 個
+> 自動產生於 2026-06-04 08:39
+> 當前活躍 1 個 / 已封存 8 個
 > 重新產生：在專案根目錄跑 `python D:\p\workflow\scripts\index.py`
 > **勿手改本檔**——要新內容請跑上面那行 script
 
@@ -11,7 +11,7 @@
 
 | # | 紀錄 | PLAN | Phase | PLAN 內容 | 進度 / 末事件 | 事件數 |
 |---|---|---|---|---|---|---|
-| 9 | [紀錄9](實驗紀錄9.md) | — | — | — | _(待 Lead 在 PLAN 開頭加 `> **關鍵成果**：xxx`)_ | 0 |
+| 10 | [紀錄10](實驗紀錄10.md) | — | — | — | _(待 Lead 在 PLAN 開頭加 `> **關鍵成果**：xxx`)_ | 0 |
 
 ---
 
@@ -26,6 +26,7 @@
 | 6 | [紀錄6](logs/實驗紀錄6.md) | [E6](logs/PLAN_E6_done.md) | — | — | CLI v2 骨架交付：tdcs_clean TS 翻譯通過 baseline 14,058 行 md5=0 對齊、gantries_v4_1.json 339 個門架 ingest、endpoint 三層 priori… | 9 | 2026-06-02 |
 | 7 | [紀錄7](logs/實驗紀錄7.md) | [E7](logs/PLAN_E7_done.md) | — | — | PLAN_E7 AWS infra 完整交付：Terraform 一鍵建 15 resource（S3 + Lambda Container + API GW + Glue DC + Athena WG）、端到端 smo… | 10 | 2026-06-02 ~ 2026-06-04 |
 | 8 | [紀錄8](logs/實驗紀錄8.md) | [E8](logs/PLAN_E8_done.md) | — | — | PLAN_E8 download chain 端到端交付：tdcs-dl pull + status + wizard 整合、麻豆段 22 GB 真實跑通（744 檔 / 21.79 GiB / 43 min / 6-s… | 6 | 2026-06-04 |
+| 9 | [紀錄9](logs/實驗紀錄9.md) | [E9](logs/PLAN_E9_done.md) | — | — | PLAN_E9 端到端清洗鏈交付：Lambda polars + Parquet + Glue + MSCK REPAIR + SQS broker async（M4.5 工程設計）、22 GB raw → 14116… | 12 | 2026-06-04 |
 
 ---
 
