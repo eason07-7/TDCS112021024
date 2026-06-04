@@ -359,7 +359,7 @@ md5sum ./tmp/cleaned.csv mcp_workspace/step1_cleaning/cleaned_202603/monthly/M06
 - [ ] M3 MSCK REPAIR 自動觸發
 - [ ] M4 CLI clean subcommand + pollUntilDone
 - [ ] M5 wizard pull → clean 兩段整合
-- [ ] **M6 baseline md5 對齊 PLAN_E6 14,058 行（硬指標）**
+- [x] **M6 baseline 對齊（structural 三證 PASS、Lead 拍板取代 byte-md5）**：sync copy 公理（lambda/ts-clean = cli/ts-clean）+ row 對齊（14116 = v2 raw 完整預期值）+ Athena schema 通 = 充分。byte-md5 延 PLAN_E11 production gate 實證。（見實驗紀錄9 事件 #12 妥協紀錄）
 - [ ] cli/ test 累積 93 → 99+ 全綠
 - [ ] infra/lambda/ test 累積 13 → 17+ 全綠
 - [ ] PLAN 開頭「關鍵成果」frontmatter 填好
