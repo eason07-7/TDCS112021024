@@ -52,15 +52,22 @@ deploy_worker 觀察報告 #1+#2 兩處 spec ↔ 實際不對齊：
 
 ---
 
-### M1 — Demo 素材補缺（User 自跑、5-10 min）
+### M1 — Demo 素材補缺（User 自跑、opus_worker_2 嚮導、預估 15-20 min）
+
+> **scope 擴張**（2026-06-04 opus_worker_2 期中回報 C1 拍板）：原 3 張擴 8 張、加 5 張 AWS Console 配置截圖、配 §2 配置一覽表使用。
 
 | 截圖 | 拍什麼 | 哪裡拍 | 放到 |
 |---|---|---|---|
-| `demo_08_stage2_cleaning.png` | wizard Running view、Stage 2 (Cleaning) 進度條跑到一半（如 40-80%） | 本機 PowerShell、跑 `node cli/dist/index.js`（wizard 三選項本機 + 觸發 clean、或重 clean 既有 jobId） | `workflow/reports/screenshots/E10/` |
+| `demo_08_stage2_cleaning.png` | wizard Running view、Stage 2 (Cleaning) 進度條 40-80% | 本機 PowerShell、跑 wizard 觸發 clean、或重 clean 既有 jobId | `workflow/reports/screenshots/E10/` |
 | `demo_09_done_view.png` | wizard Done view、顯示「成功」+ 14116 rows + 耗時 + jobId | 同上、跑完後最終畫面 | 同上 |
-| `demo_12_athena_workgroup.png` | AWS Console / Athena / Workgroups / `tdcs-dl-wg` 設定頁、顯示 10 MB 掃描上限 | AWS Console us-east-1 | 同上 |
+| `demo_12_athena_workgroup.png` | AWS Console / Athena / Workgroups / `tdcs-dl-wg`、能看到 10 MB scan cap | AWS Console us-east-1 | 同上 |
+| `demo_17_lambda_general.png` | Lambda function cleaner General config 頁、能看到 memory 2048 MB / timeout 900 s / ephemeral 1024 MB | AWS Console / Lambda / Functions / cleaner / Configuration / General | 同上 |
+| `demo_18_sqs_settings.png` | SQS Queue clean-jobs settings 頁、能看到 visibility 920 s + DLQ link | AWS Console / SQS / Queues / clean-jobs / Details | 同上 |
+| `demo_19_glue_table.png` | Glue table `cleaned_v2_skeleton` schema 頁、能看到 9 欄 snake_case + partition `yyyymm` | AWS Console / Glue / Tables / cleaned_v2_skeleton | 同上 |
+| `demo_20_apigw_routes.png` | API Gateway HTTP API Routes 頁、能看到 `POST /clean` + `GET /jobs/{id}` | AWS Console / API Gateway / APIs / tdcs-dl / Routes | 同上 |
+| `demo_21_s3_prefixes.png` | S3 bucket `112021024` 根目錄、能看到 4 prefix（raw / cleaned_v2 / jobs / athena-results） | AWS Console / S3 / Buckets / 112021024 | 同上 |
 
-**驗收**：3 張 PNG 存在、檔名與上表完全一致、解析度 ≥ 1280×720。
+**驗收**：8 張 PNG 存在、檔名與上表完全一致、解析度 ≥ 1280×720。
 
 ---
 
@@ -258,6 +265,8 @@ PLAN_E10 三件套交付後、Lead 主動 review 以下 pending：
 - F-H3 budget gate 是否要在 public repo 改 production 版（var.enable_budgets = true）
 - README 是否要寫教學 repo vs 公開 repo 的差別
 - PLAN_E11 byte-md5 baseline 實證 gate（PLAN_E9 §0.3 4 步妥協第 4 步、demo 後補實證）
+- **E1 runPull 孤兒 temp 修補**（2026-06-04 opus_worker_2 期中發現）：`runPull` 清理只在成功時跑、Ctrl+C / 出錯留 temp（本 session opus_worker_2 已幫 User 刪一個 3.4 GB）。修法：`try/finally` + `SIGINT` handler、與 streaming pull 一起做、屬 v3.0 設計（書面 §6 寫進去、不寫進 §3）
+- **本機輸出實作補 code**（2026-06-04 opus_worker_2 A1 拍板（a））：wizard step 4「本機儲存→./tdcs-output/」UI 完整、code 端尚無 GetObject cleaned.parquet → 寫本地的邏輯。書面 §3.7 走概念設計寫、實作補 demo 後 v3.0 純本地版（DuckDB 取代 Athena 後本機本來就是 first-class path）
 
 ---
 
