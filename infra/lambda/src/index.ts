@@ -68,6 +68,25 @@ const REPAIR_WORKGROUP = 'tdcs-dl-wg';
 
 const MAX_BODY_BYTES = 100 * 1024; // F-H3: 100 KB POST body cap
 
+// ── Parquet column dtypes (F-H5) ──────────────────────────────────────────────
+// MUST mirror infra/terraform/glue.tf column types exactly. Without an explicit
+// schema, pl.readRecords infers JS numbers as Float64 → Parquet writes DOUBLE →
+// Athena rejects at read time (HIVE_BAD_DATA: DOUBLE incompatible with int defined
+// in table schema; a SQL CAST cannot fix it — the error is in the Parquet reader).
+// glue.tf: year/month/day/weekday/hour_0/vehicle_type/counts/week_index = int;
+//          gantry_id_o = string. So 8 Int32 + 1 Utf8.
+const PARQUET_SCHEMA: Record<string, pl.DataType> = {
+  year: pl.Int32,
+  month: pl.Int32,
+  day: pl.Int32,
+  weekday: pl.Int32,
+  hour_0: pl.Int32,
+  gantry_id_o: pl.Utf8,
+  vehicle_type: pl.Int32,
+  counts: pl.Int32,
+  week_index: pl.Int32,
+};
+
 /** Fully-resolved clean params carried on the SQS message. */
 interface CleanMessage {
   job_id: string;
@@ -257,10 +276,11 @@ async function runCleanFlow(
   const withWeek = addWeekIndex(hourlyAcc);
   const parquetRows = toParquetRows(withWeek);
 
-  // ── 4. polars: readRecords → writeParquet ─────────────────────────────────
+  // ── 4. polars: readRecords (with explicit INT schema, F-H5) → writeParquet ──
   // Note: nodejs-polars exports `readRecords` (not `fromRecords` like Python polars).
+  // PARQUET_SCHEMA forces Int32 (not inferred Float64) so Athena's int columns match.
   const tmpParquet = path.join(os.tmpdir(), `cleaned-${jobId}.parquet`);
-  const df = pl.readRecords(parquetRows);
+  const df = pl.readRecords(parquetRows, { schema: PARQUET_SCHEMA });
   df.writeParquet(tmpParquet);
 
   // ── 5. PutObject → S3 cleaned_v2/yyyymm=YYYYMM/cleaned.parquet ─────────────

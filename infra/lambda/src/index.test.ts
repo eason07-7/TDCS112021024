@@ -14,6 +14,9 @@ import * as zlib from 'node:zlib';
 
 jest.mock('nodejs-polars', () => ({
   readRecords: jest.fn().mockReturnValue({ writeParquet: jest.fn(), height: 1 }),
+  // F-H5: DataType markers used to build PARQUET_SCHEMA (asserted in the schema test)
+  Int32: 'Int32',
+  Utf8: 'Utf8',
 }));
 jest.mock('uuid', () => ({ v4: () => 'mock-uuid-plan-e9' }));
 
@@ -248,6 +251,18 @@ describe('SQS consumer — runCleanFlow', () => {
     expect(last.parquetKey).toBe('cleaned_v2/yyyymm=202603/cleaned.parquet');
     expect(last.query_execution_id).toBe('q-clean-1');
     expect(mockSqsSend).not.toHaveBeenCalled(); // consumer does not enqueue
+  });
+
+  test('F-H5: readRecords gets explicit INT schema (8 Int32 + gantry_id_o Utf8)', async () => {
+    await handler(makeSqsEvent(msg));
+    const { readRecords } = require('nodejs-polars') as { readRecords: jest.Mock };
+    const schema = readRecords.mock.calls[0][1]?.schema;
+    expect(schema).toBeDefined();
+    // numeric columns → Int32 (not inferred Float64 → Parquet DOUBLE)
+    for (const c of ['year', 'month', 'day', 'weekday', 'hour_0', 'vehicle_type', 'counts', 'week_index']) {
+      expect(schema[c]).toBe('Int32');
+    }
+    expect(schema.gantry_id_o).toBe('Utf8');
   });
 
   test('parquet PutObject uses Hive partition key', async () => {
