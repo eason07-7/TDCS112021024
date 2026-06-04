@@ -51,3 +51,10 @@ infra/lambda/coverage/
 
 # Lambda tempdir (pull 跑時建在 OS tmp、但 --keep-temp 可能落本機)
 tdcs-dl-*/
+
+# Claude Code session 本地檔（不應追蹤、會觸發 build_and_push.sh dirty tag）
+.claude/
+
+# CLI 本地 terraform 殘留（cli/ 不該有 tfstate、是誤建、保險擋）
+cli/terraform.tfstate
+cli/terraform.tfstate.backup
