@@ -1,0 +1,17 @@
+=== D. raw partition 3 個月真實落地（summary） ===
+2026-06-13 20:04:30
+
+--- yyyymm=202603 ---
+
+Total Objects: 744
+   Total Size: 4598707037
+
+--- yyyymm=202604 ---
+
+Total Objects: 600
+   Total Size: 3690769893
+
+--- yyyymm=202605 ---
+
+Total Objects: 744
+   Total Size: 4551016628

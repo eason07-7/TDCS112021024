@@ -1,0 +1,8 @@
+=== A. AWS 身分驗證（學號 email 內嵌 Arn、無法假造） ===
+2026-06-13 20:03:59
+
+{
+    "UserId": "AROAZQYS36P4JKWVPU253:user5013049=112021024@live.asia.edu.tw",
+    "Account": "654485222392",
+    "Arn": "arn:aws:sts::654485222392:assumed-role/voclabs/user5013049=112021024@live.asia.edu.tw"
+}

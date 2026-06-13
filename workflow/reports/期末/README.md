@@ -5,7 +5,7 @@
 | 產出 | 檔案 | 由哪個 Milestone 產生 | 來源 |
 |---|---|---|---|
 | 📄 書面報告（PDF）| `期末書面報告.pdf` | M3（[USER_RUN] Pandoc xelatex）| 源 `../期末書面報告.md` |
-| 🖼️ 簡報（HTML/PPT）| `期末簡報.html`（或 `.pptx`）| M5（[USER_RUN] AI Studio 動畫簡報）| brief `../brief_期末_2026-06-04.md` |
+| 🖼️ 簡報（PPTX）| `期末簡報.pptx`（+ `期末簡報_svg高保真.pptx`）| M5（ppt-master 深色顧問風 14 頁）| 源 `../期末書面報告.md` |
 | 🎬 YouTube 影片 | （線上連結、不放檔）| M7 | 講稿 `../期末影片講稿.md` |
 
 ## 約定

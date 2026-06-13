@@ -1,0 +1,18 @@
+=== E. Lambda function 真實存在 + image tag 含 git SHA ===
+2026-06-13 20:05:04
+
+{
+    "FunctionName": "tdcs-dl-cleaner",
+    "Runtime": null,
+    "MemorySize": 2048,
+    "Timeout": 900,
+    "PackageType": "Image",
+    "ImageUri": null,
+    "Role": "arn:aws:iam::654485222392:role/LabRole",
+    "LastModified": "2026-06-04T01:40:14.000+0000",
+    "EphemeralStorage": {
+        "Size": 1024
+    }
+}
+=== E2. Lambda image URI (顯式撈) ===
+654485222392.dkr.ecr.us-east-1.amazonaws.com/tdcs-dl-cleaner:a381a2d7a88a-dirty-20260604093928

@@ -1,0 +1,26 @@
+=== H. 當下跑一次 Athena 三月份統計 ===
+2026-06-13 20:05:31
+
+QueryExecutionId: deab9a37-927e-43ba-9a8e-e3d31e37534c
+{
+    "Status": "SUCCEEDED",
+    "ScannedBytes": 53906,
+    "EngineMs": 904,
+    "SubmittedAt": "2026-06-13T20:05:32.667000+08:00"
+}
+
+--- Results ---
+[
+    "yyyymm",
+    "rows",
+    "total_traffic",
+    "202603",
+    "14116",
+    "1529833",
+    "202604",
+    "11384",
+    "1209280",
+    "202605",
+    "7066",
+    "760353"
+]

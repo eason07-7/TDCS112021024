@@ -1,0 +1,9 @@
+=== C. 3 個月 cleaned_v2 真實落地（partition + 大小 + 時間戳） ===
+2026-06-13 20:04:25
+
+--- yyyymm=202603 ---
+2026-06-04 09:55:11      76673 cleaned_v2/yyyymm=202603/cleaned.parquet
+--- yyyymm=202604 ---
+2026-06-06 01:13:56      61302 cleaned_v2/yyyymm=202604/cleaned.parquet
+--- yyyymm=202605 ---
+2026-06-04 16:32:38      39985 cleaned_v2/yyyymm=202605/cleaned.parquet

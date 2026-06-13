@@ -1,0 +1,52 @@
+=== G. Glue cleaned_v2_skeleton table 真實存在 ===
+2026-06-13 20:05:29
+
+{
+    "Name": "cleaned_v2_skeleton",
+    "Database": "tdcs_dl",
+    "Location": "s3://112021024/cleaned_v2/",
+    "Columns": [
+        [
+            "year",
+            "int"
+        ],
+        [
+            "month",
+            "int"
+        ],
+        [
+            "day",
+            "int"
+        ],
+        [
+            "weekday",
+            "int"
+        ],
+        [
+            "hour_0",
+            "int"
+        ],
+        [
+            "gantry_id_o",
+            "string"
+        ],
+        [
+            "vehicle_type",
+            "int"
+        ],
+        [
+            "counts",
+            "int"
+        ],
+        [
+            "week_index",
+            "int"
+        ]
+    ],
+    "Partition": [
+        [
+            "yyyymm",
+            "string"
+        ]
+    ]
+}

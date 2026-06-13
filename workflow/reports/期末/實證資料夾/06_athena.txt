@@ -1,0 +1,11 @@
+=== F. Athena workgroup 真實存在 ===
+2026-06-13 20:05:06
+
+{
+    "Name": "tdcs-dl-wg",
+    "State": "ENABLED",
+    "OutputLocation": null,
+    "ScanCap_Bytes": 10485760,
+    "EnforceConfig": true,
+    "CloudWatchMetrics": true
+}
