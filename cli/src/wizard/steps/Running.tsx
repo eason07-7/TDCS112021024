@@ -51,13 +51,15 @@ interface Props {
   year: number;
   month: number;
   gantries: string[];
+  /** Optional single-day filter (1-31) — used for demo runs. */
+  day?: number;
   /** Reports phase up to App so its top-level state stays accurate. */
   onPhase: (phase: RunPhase) => void;
   onDone: (jobId: string, record: JobRecord) => void;
   onError: (err: string) => void;
 }
 
-export default function RunningStep({ year, month, gantries, onPhase, onDone, onError }: Props) {
+export default function RunningStep({ year, month, gantries, day, onPhase, onDone, onError }: Props) {
   // 'running' = downloading (stage 1) · 'cleaning' = AWS clean (stage 2)
   const [stage, setStage] = useState<RunPhase>('running');
   const [pullPhase, setPullPhase] = useState<string>('init');
@@ -83,7 +85,7 @@ export default function RunningStep({ year, month, gantries, onPhase, onDone, on
     started.current = true;
 
     runPipeline(
-      { year, month, gantries },
+      { year, month, gantries, day },
       {
         onPhase: (phase) => { setStage(phase); onPhase(phase); },
         onPullProgress: (evt) => {

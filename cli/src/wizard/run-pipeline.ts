@@ -21,6 +21,8 @@ export interface PipelineOptions {
   year: number;
   month: number;
   gantries: string[];
+  /** Optional single-day filter (1-31) — used for demo runs. */
+  day?: number;
   /** Override endpoint (tests); defaults to resolveEndpoint() inside runClean. */
   endpoint?: string;
 }
@@ -48,12 +50,12 @@ export async function runPipeline(
   opts: PipelineOptions,
   cb: PipelineCallbacks = {},
 ): Promise<PipelineResult> {
-  const { year, month, gantries, endpoint } = opts;
+  const { year, month, gantries, day, endpoint } = opts;
 
   // ── Stage 1: download → S3 ────────────────────────────────────────────────
   cb.onPhase?.('running');
   const jobId = await runPull(
-    { year, month, gantries },
+    { year, month, gantries, day },
     (evt) => cb.onPullProgress?.(evt),
   );
 

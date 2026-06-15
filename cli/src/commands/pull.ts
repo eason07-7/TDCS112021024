@@ -44,6 +44,8 @@ export interface RunPullOptions {
   year: number;
   month: number;
   gantries: string[];
+  day?: number;        // optional single-day filter (1-31). when set, only that day's
+                       // 24 hourly files are downloaded — used for demo runs.
   bucket?: string;
   keepTemp?: boolean;
 }
@@ -70,7 +72,7 @@ export async function runPull(
   opts: RunPullOptions,
   onProgress?: (evt: RunPullProgress) => void,
 ): Promise<string> {
-  const { year, month, gantries, bucket = DEFAULT_BUCKET, keepTemp = false } = opts;
+  const { year, month, gantries, day, bucket = DEFAULT_BUCKET, keepTemp = false } = opts;
   const jobId = crypto.randomUUID();
   const client = new S3Client({ region: AWS_REGION });
   const tempDir = path.join(os.tmpdir(), `tdcs-dl-${jobId}`);
@@ -84,7 +86,8 @@ export async function runPull(
     fs.mkdirSync(tempDir, { recursive: true });
 
     // ── 2. Download phase ──────────────────────────────────────────────
-    const totalDays = daysInMonth(year, month);
+    // single-day mode: only that one day's 24 hourly files; otherwise full month.
+    const totalDays = day !== undefined ? 1 : daysInMonth(year, month);
     onProgress?.({ kind: 'phase', phase: 'download', total: totalDays, done: 0 });
 
     let dlDone = 0;
@@ -96,6 +99,8 @@ export async function runPull(
           onProgress?.({ kind: 'dl_day', done: dlDone, total: totalDays, label: evt.yyyymmdd });
         }
       },
+      {},
+      day,
     );
 
     // ── 3. Upload phase ────────────────────────────────────────────────

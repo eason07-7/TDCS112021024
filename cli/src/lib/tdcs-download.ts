@@ -440,13 +440,14 @@ export async function downloadMonth(
   outDir: string,
   progressCb?: DownloadProgressCallback,
   opts: DownloadOptions = {},
+  singleDay?: number,
 ): Promise<DownloadMonthResult> {
   const yyyymm = `${year}${String(month).padStart(2, '0')}`;
   const monthDir = path.join(outDir, yyyymm);
   fs.mkdirSync(monthDir, { recursive: true });
 
-  // Skip if already marked READY
-  if (fs.existsSync(path.join(monthDir, READY_MARKER))) {
+  // Skip if already marked READY (single-day mode bypasses the month-wide marker)
+  if (singleDay === undefined && fs.existsSync(path.join(monthDir, READY_MARKER))) {
     return { totalFiles: 0, totalBytes: 0, errors: [], ready: true };
   }
 
@@ -455,9 +456,11 @@ export async function downloadMonth(
   const errors: string[] = [];
   let totalFiles = 0;
   let totalBytes = 0;
-  const days = daysInMonth(year, month);
+  const lastDay = daysInMonth(year, month);
+  const startDay = singleDay ?? 1;
+  const endDay = singleDay ?? lastDay;
 
-  for (let d = 1; d <= days; d++) {
+  for (let d = startDay; d <= endDay; d++) {
     const yyyymmdd = toYyyymmdd(year, month, d);
 
     // Day already complete — emit day_done and skip download
@@ -494,8 +497,8 @@ export async function downloadMonth(
     progressCb?.({ kind: 'day_done', yyyymmdd, filesTotal: totalFiles });
   }
 
-  // Check overall month completeness and write _READY
-  const ready = monthIsComplete(year, month, monthDir);
+  // Check overall month completeness and write _READY (skip in single-day mode)
+  const ready = singleDay === undefined && monthIsComplete(year, month, monthDir);
   if (ready) {
     const stamp = new Date().toISOString();
     fs.writeFileSync(

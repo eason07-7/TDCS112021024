@@ -62,6 +62,7 @@ export default function App() {
     const timeStart = answers.timeRange?.start ?? '202603';
     const year  = parseInt(timeStart.slice(0, 4), 10);
     const month = parseInt(timeStart.slice(4, 6), 10);
+    const day   = answers.timeRange?.day;
     const gantries = answers.gantries ?? [];
 
     return (
@@ -71,6 +72,7 @@ export default function App() {
           year={year}
           month={month}
           gantries={gantries}
+          day={day}
           onPhase={setRunPhase}
           onDone={handleRunDone}
           onError={handleRunError}

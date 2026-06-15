@@ -3,8 +3,10 @@ export type DataType = 'M06A';
 export type OutputDest = 'local' | 's3' | 'both';
 
 export interface TimeRange {
-  start: string; // YYYYMM
-  end: string;   // YYYYMM
+  start: string;  // YYYYMM
+  end: string;    // YYYYMM
+  day?: number;   // optional single-day filter (1-31). when set, pull/clean
+                  // operate on this single day only — used for demo runs.
 }
 
 export interface WizardAnswers {

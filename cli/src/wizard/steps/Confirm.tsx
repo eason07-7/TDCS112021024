@@ -18,6 +18,7 @@ export default function ConfirmStep({ state, onPrev, onQuit, onSubmit }: Props) 
     dataType:   answers.dataType ?? 'M06A',
     timeStart:  answers.timeRange?.start ?? '?',
     timeEnd:    answers.timeRange?.end ?? '?',
+    timeDay:    answers.timeRange?.day,
     gantries:   answers.gantries ?? [],
     outputDest: answers.outputDest ?? 'local',
   };
@@ -50,7 +51,11 @@ export default function ConfirmStep({ state, onPrev, onQuit, onSubmit }: Props) 
         </Box>
         <Box>
           <Text dimColor>時間區間：</Text>
-          <Text bold color="cyan">{payload.timeStart} – {payload.timeEnd}</Text>
+          <Text bold color="cyan">
+            {payload.timeDay !== undefined
+              ? `${payload.timeStart} 第 ${payload.timeDay} 天 (單日)`
+              : `${payload.timeStart} – ${payload.timeEnd}`}
+          </Text>
         </Box>
         <Box>
           <Text dimColor>路段數量：</Text>

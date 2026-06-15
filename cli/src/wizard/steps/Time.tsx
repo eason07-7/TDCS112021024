@@ -28,7 +28,9 @@ interface PresetOption {
  */
 // Relative to 2026-06 (current demo period)
 const PRESETS: PresetOption[] = [
-  { label: '本月          (202605)',        range: { start: '202605', end: '202605' }, months: 1 },
+  { label: '單日下載 ‧ 2026-06-01 (測試)',   range: { start: '202606', end: '202606', day: 1 }, months: 1 },
+  { label: '單日下載 ‧ 2026-06-02 (演示)',   range: { start: '202606', end: '202606', day: 2 }, months: 1 },
+  { label: '本月          (202605)',          range: { start: '202605', end: '202605' }, months: 1 },
   { label: '最近 2 個月   (202604 – 202605)', range: { start: '202604', end: '202605' }, months: 2 },
   { label: '最近 3 個月   (202603 – 202605)', range: { start: '202603', end: '202605' }, months: 3 },
 ];
